@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe - Explorador de Equipos</title>
+    <style>
+        /* Estilos base de Wireframe (Gris y Blanco) */
+        :root {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --border-color: #cccccc;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --accent-gray: #e0e0e0;
+            --btn-dark: #222222;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        /* Barra de Navegación */
+        header {
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-placeholder {
+            width: 120px;
+            height: 40px;
+            background-color: var(--accent-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--text-muted);
+            border: 1px dashed var(--text-muted);
+            text-decoration: none;
+        }
+
+        nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Botón que disparará el Pop-up de datos faltantes */
+        .btn-outline {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--text-main);
+            background-color: transparent;
+            color: var(--text-main);
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--accent-gray);
+        }
+
+        /* Contenido Principal */
+        main {
+            padding: 3rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-section {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-section p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Grilla de Equipos */
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Tarjeta de Equipo */
+        .team-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .team-card-image {
+            height: 160px;
+            width: 100%;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .team-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .team-content h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+        }
+
+        .team-content p {
+            margin: 0 0 1.5rem 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .team-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--btn-dark);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        .btn-primary:hover {
+            background-color: #444;
+        }
+
+        .btn-pending {
+            background-color: #f0f0f0;
+            color: #888888;
+            border: 1px solid #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-pending:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header de Navegación -->
+    <header>
+        <a href="home_principal.html" class="logo-placeholder">LOGO APP</a>
+        <nav style="display: flex; align-items: center; gap: 1rem;">
+            <a href="home_principal.html" class="btn-outline">Inicio</a>
+            <a href="explorador_equipos.html" class="btn-outline">Equipos</a>
+            <a href="eventos.html" class="btn-outline">Eventos</a>
+            <!-- Este botón redirige a mi perfil / dashboard atleta -->
+            <a href="dashboard_atleta.html" class="btn-outline">Mi Perfil</a>
+            
+            <!-- Selector de Rol -->
+            <div style="font-size: 0.85rem; padding: 0.35rem 0.5rem; border-radius: 4px; border: 1px solid var(--border-color); background-color: var(--surface-color); display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-main); font-weight: bold; height: 32px; box-sizing: border-box;">
+                <span>Rol:</span> 
+                <select onchange="location.href=this.value" style="border: none; background: transparent; font-family: inherit; font-size: inherit; font-weight: bold; cursor: pointer; color: inherit; outline: none;">
+                    <option value="explorador_equipos.html" selected>Atleta</option>
+                    <option value="admin_dashboard.html">Administrador</option>
+                </select>
+            </div>
+            
+            <a href="acceso_plataforma.html" class="btn-outline">Cerrar sesión</a>
+        </nav>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main>
+        <section class="hero-section">
+            <h1>Encuentra tu Equipo de Entrenamiento</h1>
+            <p>Explora los equipos disponibles y envía tu solicitud para unirte.</p>
+        </section>
+
+        <!-- Listado de Equipos -->
+        <section class="teams-grid">
+            
+            <!-- Tarjeta 1 -->
+            <div class="team-card">
+                <img src="file:///C:/Users/pnm19/.gemini/antigravity/brain/703f56a1-ab42-4806-84fe-f19de479cb62/rv_mountain_1779220112769.png" alt="RV equipo de montaña" class="team-card-image">
+                <div class="team-content">
+                    <h3>RV equipo de montaña</h3>
+                    <p>Preparación intensiva para carreras de montaña y maratones. Entrenamiento enfocado en distancias de 10K y 21K.</p>
+                    <div class="team-meta">
+                        <span>📍 Cuyo</span>
+                        <span>👥 45 Atletas</span>
+                    </div>
+                    <a href="popup_datos_atleta.html" class="btn-primary">Solicitar Unirse</a>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2 -->
+            <div class="team-card">
+                <img src="file:///C:/Users/pnm19/.gemini/antigravity/brain/703f56a1-ab42-4806-84fe-f19de479cb62/rioja_team_1779220130505.png" alt="Equipo de La Rioja" class="team-card-image">
+                <div class="team-content">
+                    <h3>Equipo de ejemplo 1</h3>
+                    <p>Grupo local enfocado en el desarrollo de resistencia y técnica de carrera para todos los niveles.</p>
+                    <div class="team-meta">
+                        <span>📍 La Rioja</span>
+                        <span>👥 28 Atletas</span>
+                    </div>
+                    <a href="popup_datos_atleta.html" class="btn-primary" id="btn-ejemplo1">Solicitar Unirse</a>
+                </div>
+            </div>
+
+            <!-- Tarjeta 3 -->
+            <div class="team-card">
+                <img src="file:///C:/Users/pnm19/.gemini/antigravity/brain/703f56a1-ab42-4806-84fe-f19de479cb62/patagonia_team_1779220149511.png" alt="Equipo de Patagonia" class="team-card-image">
+                <div class="team-content">
+                    <h3>Equipo de ejemplo 2</h3>
+                    <p>Entrenamientos a distancia y presenciales con foco en expediciones a parques nacionales y desnivel positivo.</p>
+                    <div class="team-meta">
+                        <span>📍 Patagonia</span>
+                        <span>👥 15 Atletas</span>
+                    </div>
+                    <a href="popup_datos_atleta.html" class="btn-primary">Solicitar Unirse</a>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // Lógica de detección de solicitud enviada
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('solicitud') === 'enviada') {
+                const btnEjemplo1 = document.getElementById('btn-ejemplo1');
+                if (btnEjemplo1) {
+                    btnEjemplo1.className = 'btn-primary btn-pending';
+                    btnEjemplo1.textContent = 'Solicitud Enviada (Pendiente)';
+                    btnEjemplo1.removeAttribute('href');
+                    btnEjemplo1.style.pointerEvents = 'none';
+                    alert('Has regresado al explorador. Tu solicitud para "Equipo de ejemplo 1" se muestra en estado Pendiente.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

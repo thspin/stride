@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe - Pop-up Datos Atleta</title>
+    <style>
+        /* Estilos base de Wireframe */
+        :root {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --border-color: #cccccc;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --accent-gray: #e0e0e0;
+            --btn-dark: #222222;
+            --overlay-bg: rgba(0, 0, 0, 0.6);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* Simulación del fondo (Explorador de equipos) */
+        .mock-background {
+            padding: 2rem;
+            text-align: center;
+            opacity: 0.4; /* Opaco porque simula el fondo inactivo */
+        }
+
+        .btn-outline {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--text-main);
+            background-color: transparent;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            color: var(--text-main);
+        }
+
+        /* Estilos del Modal / Pop-up */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--overlay-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            /* Visible por defecto para mostrar la validación inmediata */
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-box {
+            background-color: var(--surface-color);
+            width: 100%;
+            max-width: 450px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            line-height: 1;
+            text-decoration: none;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-body p {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Formulario */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            text-align: right;
+        }
+
+        .btn-primary {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--btn-dark);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .btn-primary:hover {
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fondo simulado para probar el disparador -->
+    <div class="mock-background">
+        <h2>Vista de Fondo (Explorador)</h2>
+        <p>Estás en el explorador de equipos buscando un grupo para unirte.</p>
+        <a href="explorador_equipos.html" class="btn-outline">Volver al Explorador</a>
+    </div>
+
+    <!-- Modal / Pop-up -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-box">
+            
+            <div class="modal-header">
+                <h2>Completa tu Perfil (Datos de Seguridad)</h2>
+                <a href="explorador_equipos.html" class="btn-close" id="closeModalBtn">&times;</a>
+            </div>
+
+            <div class="modal-body">
+                <p>Para garantizar tu seguridad y la de tu equipo, necesitamos algunos datos obligatorios antes de enviar la solicitud.</p>
+                
+                <form id="profileForm" onsubmit="submitForm(event)">
+                    <!-- El email y nombre ya los tenemos de Google, no hace falta pedirlos -->
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Teléfono Móvil</label>
+                            <input type="tel" id="phone" class="form-control" placeholder="+54 9..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dob">Fecha de Nacimiento</label>
+                            <input type="date" id="dob" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emergencyName">Contacto de Emergencia (Nombre)</label>
+                        <input type="text" id="emergencyName" class="form-control" placeholder="Ej. Familiar o amigo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emergencyPhone">Teléfono de Emergencia</label>
+                        <input type="tel" id="emergencyPhone" class="form-control" placeholder="+54 9..." required>
+                    </div>
+                    
+                    <div style="display: none;">
+                        <input type="submit" id="hiddenSubmit">
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="document.getElementById('hiddenSubmit').click()">Guardar y Enviar Solicitud</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function submitForm(event) {
+            event.preventDefault();
+            alert('Datos guardados exitosamente. Solicitud enviada al Administrador en estado de Pendiente de Aprobación.');
+            // Redirige al explorador con parámetro indicando que la solicitud está enviada
+            window.location.href = 'explorador_equipos.html?solicitud=enviada';
+        }
+    </script>
+</body>
+</html>

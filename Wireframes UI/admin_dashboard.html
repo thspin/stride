@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos base de Wireframe */
+        :root {
+            --bg-main: #f0f0f0;
+            --surface: #ffffff;
+            --border: #cccccc;
+            --text-dark: #222222;
+            --text-light: #666666;
+            --btn-dark: #333333;
+            --btn-outline: #dddddd;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Menú Lateral (Sidebar) */
+        aside {
+            width: 250px;
+            background-color: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border);
+            font-weight: bold;
+            color: var(--text-light);
+            background-color: #e8e8e8;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--bg-main);
+            cursor: pointer;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            border-left: 4px solid var(--text-dark);
+        }
+
+        /* Área Principal */
+        main {
+            flex-grow: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        /* Tarjetas de Métricas (KPIs) */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .kpi-card {
+            background-color: var(--surface);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        .kpi-title {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Gráficos */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .chart-card {
+            background-color: var(--surface);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        .chart-card h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        /* Secciones de Tablas/Listados */
+        .section-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+        }
+
+        /* Lista de Solicitudes */
+        .request-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .request-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background-color: var(--bg-main);
+        }
+
+        .request-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        /* Badge de días flotante (esquina superior derecha) */
+        .request-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+        }
+
+        /* Overlay con información y acciones (se revela en hover) */
+        .request-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(26, 56, 52, 0.95); /* Tono verde oscuro premium de Stride */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: #ffffff;
+            z-index: 5;
+        }
+
+        .request-item:hover .request-overlay {
+            opacity: 1;
+        }
+
+        .request-item:hover .request-photo {
+            transform: scale(1.05);
+        }
+
+        .request-overlay h4 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .request-overlay p {
+            margin: 0 0 1rem 0;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-accept {
+            background-color: var(--btn-dark);
+            color: white;
+        }
+
+        .btn-accept:hover {
+            background-color: #555;
+        }
+
+        .btn-reject {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+        }
+
+        .btn-reject:hover {
+            background-color: var(--bg-main);
+        }
+
+        /* Tablas */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .admin-table th {
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Badges de Estado */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .badge-success {
+            background-color: #e2f0d9;
+            border-color: #a9d08e;
+            color: #375623;
+        }
+
+        .badge-danger {
+            background-color: #fce4d6;
+            border-color: #f8cbad;
+            color: #c65911;
+        }
+
+        .badge-warning {
+            background-color: #fff2cc;
+            border-color: #ffd966;
+            color: #7f6000;
+        }
+
+        /* Formularios */
+        .form-group {
+            margin-bottom: 1.25rem;
+            max-width: 500px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Menú Lateral -->
+    <aside>
+        <div class="sidebar-header">
+            RV equipo de montaña
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="switchSection(event, 'dashboard-sec')">Dashboard</li>
+            <li class="nav-item" onclick="switchSection(event, 'requests-sec')">Solicitudes</li>
+            <li class="nav-item" onclick="switchSection(event, 'athletes-sec')">Atletas y Suscripciones</li>
+            <li class="nav-item" onclick="switchSection(event, 'med-sec')">Aptos Médicos</li>
+        </ul>
+    </aside>
+
+    <!-- Área Principal -->
+    <main>
+        <div class="page-header">
+            <h1 id="page-title">Resumen del Equipo</h1>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <a href="eventos.html" class="btn btn-reject" style="height: 34px; box-sizing: border-box; display: inline-flex; align-items: center;">Eventos</a>
+                <div style="font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 4px; border: 1px solid var(--border); background-color: var(--surface); display: flex; align-items: center; gap: 0.5rem; color: var(--text-dark); font-weight: bold; height: 34px; box-sizing: border-box;">
+                    <span>Rol:</span> 
+                    <select onchange="location.href=this.value" style="border: none; background: transparent; font-family: inherit; font-size: inherit; font-weight: bold; cursor: pointer; color: inherit; outline: none; padding-right: 0.5rem;">
+                        <option value="admin_dashboard.html" selected>Administrador</option>
+                        <option value="home_principal.html">Atleta</option>
+                    </select>
+                </div>
+                <a href="acceso_plataforma.html" class="btn btn-reject" style="height: 34px; box-sizing: border-box; display: inline-flex; align-items: center;">Cerrar Sesión</a>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 1: DASHBOARD -->
+        <div id="dashboard-sec" class="view-section active">
+            <!-- Métricas Rápidas -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">Atletas Activos</div>
+                    <p class="kpi-value" id="kpi-actives">28</p>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Nuevas Solicitudes</div>
+                    <p class="kpi-value" id="kpi-requests">2</p>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Suscripciones Vencidas</div>
+                    <p class="kpi-value" id="kpi-debts">4</p>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Atletas por Género</h3>
+                    <canvas id="genderChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Ingresos Mensuales</h3>
+                    <canvas id="incomeChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Carga Horaria Semanal (hs)</h3>
+                    <canvas id="workloadChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECCIÓN DE SOLICITUDES -->
+        <div id="requests-sec" class="view-section">
+            <div class="section-card">
+                <h2 class="section-header">Solicitudes Entrantes (Acción Requerida)</h2>
+                <div class="request-list" id="requests-container">
+
+                    <!-- Solicitud 1 -->
+                    <div class="request-item" id="req-1">
+                        <span class="request-badge">0d</span>
+                        <img src="https://ui-avatars.com/api/?name=Pablo+Gomez&background=random&size=150" alt="Foto" class="request-photo">
+                        <div class="request-overlay">
+                            <h4>Pablo Gómez</h4>
+                            <p>Espera: 0 días</p>
+                            <div class="action-buttons">
+                                <button class="btn btn-reject"
+                                    onclick="processRequest('req-1', false, 'Pablo Gómez')">Rechazar</button>
+                                <button class="btn btn-accept"
+                                    onclick="processRequest('req-1', true, 'Pablo Gómez')">Admitir</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Solicitud 2 -->
+                    <div class="request-item" id="req-2">
+                        <span class="request-badge">1d</span>
+                        <img src="https://ui-avatars.com/api/?name=Silvia+Fernandez&background=random&size=150" alt="Foto" class="request-photo">
+                        <div class="request-overlay">
+                            <h4>Silvia Fernández</h4>
+                            <p>Espera: 1 día</p>
+                            <div class="action-buttons">
+                                <button class="btn btn-reject"
+                                    onclick="processRequest('req-2', false, 'Silvia Fernández')">Rechazar</button>
+                                <button class="btn btn-accept"
+                                    onclick="processRequest('req-2', true, 'Silvia Fernández')">Admitir</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="no-requests-msg"
+                    style="display: none; color: var(--text-light); text-align: center; padding: 1.5rem 0;">
+                    No tienes solicitudes pendientes de aprobación.
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: ATLETAS Y SUSCRIPCIONES -->
+        <div id="athletes-sec" class="view-section">
+            <div class="section-card">
+                <h2 class="section-header">Listado de Atletas y Control de Cuotas</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Atleta</th>
+                            <th>Email</th>
+                            <th>Estado Suscripción</th>
+                            <th>Próximo Vencimiento</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="athletes-table-body">
+                        <tr>
+                            <td>Juan Pérez</td>
+                            <td>juan.perez@gmail.com</td>
+                            <td><span class="badge badge-success">Pagado</span></td>
+                            <td>05/Jun/2026</td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Ver Perfil</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;">Eliminar</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>María López</td>
+                            <td>maria.lopez@yahoo.com</td>
+                            <td><span class="badge badge-success">Pagado</span></td>
+                            <td>05/Jun/2026</td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Ver Perfil</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;">Eliminar</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr id="row-athlete-debt1">
+                            <td>Carlos Ruiz</td>
+                            <td>carlos.ruiz@gmail.com</td>
+                            <td><span class="badge badge-danger" id="badge-debt1">Vencido</span></td>
+                            <td>05/May/2026 (Vencido)</td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                                    <select id="select-method-debt1" style="padding: 0.35rem 0.5rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border);">
+                                        <option value="transfer">Transferencia</option>
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="tarjeta">Tarjeta</option>
+                                    </select>
+                                    <button class="btn btn-accept" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" id="btn-debt1" onclick="resolveDebt('debt1', 'Carlos Ruiz')">Verificar Pago</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="alert('Recordatorio enviado a Carlos Ruiz.')">Aviso</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Perfil</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr id="row-athlete-debt2">
+                            <td>Ana Martínez</td>
+                            <td>ana.martinez@live.com.ar</td>
+                            <td><span class="badge badge-danger" id="badge-debt2">Vencido</span></td>
+                            <td>05/May/2026 (Vencido)</td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                                    <select id="select-method-debt2" style="padding: 0.35rem 0.5rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border);">
+                                        <option value="transfer">Transferencia</option>
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="tarjeta">Tarjeta</option>
+                                    </select>
+                                    <button class="btn btn-accept" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" id="btn-debt2" onclick="resolveDebt('debt2', 'Ana Martínez')">Verificar Pago</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="alert('Recordatorio enviado a Ana Martínez.')">Aviso</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Perfil</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr id="row-athlete-pend1">
+                            <td>Esteban Quito</td>
+                            <td>esteban.quito@gmail.com</td>
+                            <td><span class="badge badge-warning" id="badge-pend1">Pendiente</span></td>
+                            <td>05/Jun/2026</td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                                    <a href="#" style="font-size: 0.85rem; margin-right: 0.5rem;" onclick="alert('Abriendo comprobante: comprobante_esteban_quito.pdf')">comprobante.pdf</a>
+                                    <select id="select-method-pend1" style="padding: 0.35rem 0.5rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border);">
+                                        <option value="transfer">Transferencia</option>
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="tarjeta">Tarjeta</option>
+                                    </select>
+                                    <button class="btn btn-accept" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="approvePayment('pend1', 'Esteban Quito')">Aprobar Pago</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="rejectPayment('pend1', 'Esteban Quito')">Rechazar Pago</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Perfil</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: APTOS MÉDICOS -->
+        <div id="med-sec" class="view-section">
+            <div class="section-card">
+                <h2 class="section-header">Auditoría de Certificados Médicos</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Atleta</th>
+                            <th>Archivo Cargado</th>
+                            <th>Estado Apto</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Juan Pérez</td>
+                            <td><a href="#"
+                                    onclick="alert('Abriendo archivo: certificado_perez.pdf')">certificado_perez.pdf</a>
+                            </td>
+                            <td><span class="badge badge-success">Vigente (Vence: 12/Dic/2026)</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>María López</td>
+                            <td><a href="#"
+                                    onclick="alert('Abriendo archivo: apto_medico_lopez.jpg')">apto_medico_lopez.jpg</a>
+                            </td>
+                            <td><span class="badge badge-success">Vigente (Vence: 18/Oct/2026)</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr id="row-med-review1">
+                            <td>Esteban Quito</td>
+                            <td><a href="#" onclick="alert('Abriendo archivo: apto_esteban.pdf')">apto_esteban.pdf</a>
+                            </td>
+                            <td><span class="badge badge-warning" id="badge-med1">Pendiente de Revisión</span></td>
+                            <td>
+                                <div class="action-buttons" style="align-items: center; display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;"
+                                        onclick="rejectMed('row-med-review1', 'Esteban Quito')">Rechazar</button>
+                                    <select id="select-validity-med1" style="padding: 0.35rem 0.5rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border);">
+                                        <option value="1">1 mes</option>
+                                        <option value="2">2 meses</option>
+                                        <option value="3">3 meses</option>
+                                        <option value="4">4 meses</option>
+                                        <option value="5">5 meses</option>
+                                        <option value="6">6 meses</option>
+                                        <option value="7">7 meses</option>
+                                        <option value="8">8 meses</option>
+                                        <option value="9">9 meses</option>
+                                        <option value="10">10 meses</option>
+                                        <option value="11">11 meses</option>
+                                        <option value="12" selected>12 meses</option>
+                                    </select>
+                                    <button class="btn btn-accept" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;"
+                                        onclick="approveMed('badge-med1', 'row-med-review1', 'select-validity-med1', 'Esteban Quito')">Aprobar</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Cambiar entre secciones del menú lateral
+        function switchSection(event, secId) {
+            // Ocultar todas las secciones
+            const sections = document.querySelectorAll('.view-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            // Quitar clase activa de los items del menú
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => item.classList.remove('active'));
+
+            // Mostrar la sección seleccionada y marcar como activo en el menú
+            document.getElementById(secId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // Cambiar título de la cabecera
+            const pageTitle = document.getElementById('page-title');
+            if (secId === 'dashboard-sec') {
+                pageTitle.textContent = 'Resumen del Equipo';
+            } else if (secId === 'requests-sec') {
+                pageTitle.textContent = 'Gestión de Solicitudes';
+            } else if (secId === 'athletes-sec') {
+                pageTitle.textContent = 'Gestión de Atletas';
+            } else if (secId === 'med-sec') {
+                pageTitle.textContent = 'Aptos Médicos';
+            }
+        }
+
+        // Lógica de Solicitudes Entrantes
+        let requestsCount = 2;
+        let activeAthletesCount = 28;
+
+        function processRequest(reqId, accepted, athleteName) {
+            const actionText = accepted ? 'admitir' : 'rechazar';
+            if (!confirm(`¿Está seguro de que desea ${actionText} la solicitud de ${athleteName}?`)) {
+                return;
+            }
+
+            const reqItem = document.getElementById(reqId);
+            reqItem.style.display = 'none';
+            requestsCount--;
+            document.getElementById('kpi-requests').textContent = requestsCount;
+
+            if (accepted) {
+                activeAthletesCount++;
+                document.getElementById('kpi-actives').textContent = activeAthletesCount;
+                alert(`Has admitido a ${athleteName} en el equipo.`);
+
+                // Agregar dinámicamente a la tabla de atletas en estado PENDIENTE de pago inicial
+                const tableBody = document.getElementById('athletes-table-body');
+                const newRow = document.createElement('tr');
+                const newId = 'new-' + Math.floor(Math.random() * 1000);
+                newRow.id = 'row-athlete-' + newId;
+                newRow.innerHTML = `
+                    <td>${athleteName}</td>
+                    <td>${athleteName.toLowerCase().replace(' ', '.')}@gmail.com</td>
+                    <td><span class="badge badge-warning" id="badge-${newId}">Pendiente</span></td>
+                    <td>- (Pago Requerido)</td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                            <span style="font-size: 0.85rem; color: var(--text-light); margin-right: 0.5rem;">Sin comprobante</span>
+                            <select id="select-method-${newId}" style="padding: 0.35rem 0.5rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border);">
+                                <option value="transfer">Transferencia</option>
+                                <option value="efectivo">Efectivo</option>
+                                <option value="tarjeta">Tarjeta</option>
+                            </select>
+                            <button class="btn btn-accept" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="approvePayment('${newId}', '${athleteName}')">Aprobar Pago</button>
+                            <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="rejectPayment('${newId}', '${athleteName}')">Rechazar Pago</button>
+                            <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Perfil</button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(newRow);
+            } else {
+                alert(`Has rechazado la solicitud de ${athleteName}.`);
+            }
+
+            if (requestsCount === 0) {
+                document.getElementById('requests-container').style.display = 'none';
+                document.getElementById('no-requests-msg').style.display = 'block';
+            }
+        }
+
+        // Marcar atletas como Al Día (Vencido -> Pagado)
+        let debtsCount = 2; // Actualizado a 2 deudas iniciales para coincidir con la lista de vencidos
+        function resolveDebt(debtId, athleteName) {
+            const select = document.getElementById('select-method-' + debtId);
+            const method = select.options[select.selectedIndex].text;
+
+            if (!confirm(`¿Está seguro de que desea registrar y verificar el pago manual de ${athleteName} mediante ${method}?`)) {
+                return;
+            }
+
+            const badge = document.getElementById('badge-' + debtId);
+            badge.className = 'badge badge-success';
+            badge.textContent = 'Pagado';
+
+            // Reemplazar controles por texto simple del medio de pago en la celda de acciones
+            const cell = badge.closest('tr').cells[4];
+            cell.innerHTML = `<span style="font-size: 0.9rem; color: var(--text-light);">Verificado (${method})</span>`;
+
+            debtsCount--;
+            document.getElementById('kpi-debts').textContent = debtsCount;
+            alert(`El pago de ${athleteName} ha sido verificado manualmente mediante ${method}.`);
+        }
+
+        // Aprobar pagos pendientes (con comprobante cargado)
+        function approvePayment(id, athleteName) {
+            const select = document.getElementById('select-method-' + id);
+            const method = select.options[select.selectedIndex].text;
+
+            if (!confirm(`¿Está seguro de que desea aprobar el comprobante de pago de ${athleteName} mediante ${method}?`)) {
+                return;
+            }
+
+            const badge = document.getElementById('badge-' + id);
+            badge.className = 'badge badge-success';
+            badge.textContent = 'Pagado';
+
+            // Reemplazar controles por texto simple del medio de pago en la celda de acciones
+            const cell = badge.closest('tr').cells[4];
+            cell.innerHTML = `<span style="font-size: 0.9rem; color: var(--text-light);">Aprobado (${method})</span>`;
+            alert(`El comprobante de pago de ${athleteName} fue aprobado mediante ${method}.`);
+        }
+
+        // Rechazar pagos pendientes o nuevos
+        function rejectPayment(id, athleteName) {
+            if (!confirm(`¿Está seguro de que desea rechazar el comprobante de pago de ${athleteName}? Su estado pasará a Vencido.`)) {
+                return;
+            }
+
+            const badge = document.getElementById('badge-' + id);
+            badge.className = 'badge badge-danger';
+            badge.textContent = 'Vencido';
+
+            // Cambiar las acciones de la fila para permitir una verificación manual de deuda posterior
+            const cell = badge.closest('tr').cells[4];
+            cell.innerHTML = `
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                    <span style="font-size: 0.85rem; color: #c00000; margin-right: 0.5rem; font-weight: bold;">Comprobante Rechazado</span>
+                    <select id="select-method-${id}" style="padding: 0.35rem 0.5rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border);">
+                        <option value="transfer">Transferencia</option>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                    </select>
+                    <button class="btn btn-accept" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="resolveDebt('${id}', '${athleteName}')">Verificar Pago</button>
+                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Perfil</button>
+                </div>
+            `;
+            alert(`Se ha rechazado el comprobante de ${athleteName}. Su estado ahora es Vencido.`);
+        }
+
+        // Aprobación de Aptos Médicos
+        function approveMed(badgeId, rowId, selectId, athleteName) {
+            const select = document.getElementById(selectId);
+            const months = parseInt(select.value);
+
+            if (!confirm(`¿Está seguro de que desea aprobar el apto médico de ${athleteName} con una vigencia de ${months} meses?`)) {
+                return;
+            }
+
+            const badge = document.getElementById(badgeId);
+            const row = document.getElementById(rowId);
+
+            // Calcular fecha de vencimiento sumando los meses seleccionados a la fecha actual
+            const today = new Date();
+            today.setMonth(today.getMonth() + months);
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            const expDate = today.toLocaleDateString('es-ES', options).replace(/\./g, '');
+
+            badge.className = 'badge badge-success';
+            badge.textContent = `Vigente (Vence: ${expDate})`;
+
+            // Reemplazar botones por un guión
+            const actionCell = row.cells[3];
+            actionCell.innerHTML = '-';
+            alert(`Apto Médico aprobado exitosamente con vigencia por ${months} meses (hasta ${expDate}).`);
+        }
+
+        function rejectMed(rowId, athleteName) {
+            if (!confirm(`¿Está seguro de que desea rechazar el apto médico de ${athleteName}?`)) {
+                return;
+            }
+            const row = document.getElementById(rowId);
+            alert(`Apto médico de ${athleteName} rechazado. Se enviará una notificación para que cargue un nuevo documento.`);
+            row.style.display = 'none';
+        }
+
+        // Inicializar Gráficos de Chart.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gráfico de Géneros
+            const ctxGender = document.getElementById('genderChart').getContext('2d');
+            new Chart(ctxGender, {
+                type: 'pie',
+                data: {
+                    labels: ['Masculino (M)', 'Femenino (F)'],
+                    datasets: [{
+                        data: [18, 10],
+                        backgroundColor: ['#4bc0c0', '#ff6384']
+                    }]
+                }
+            });
+
+            // Gráfico de Ingresos
+            const ctxIncome = document.getElementById('incomeChart').getContext('2d');
+            new Chart(ctxIncome, {
+                type: 'bar',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Ingresos ($)',
+                        data: [45000, 52000, 48000, 61000, 59000, 65000],
+                        backgroundColor: '#36a2eb'
+                    }]
+                }
+            });
+
+            // Gráfico de Carga Horaria
+            const ctxWorkload = document.getElementById('workloadChart').getContext('2d');
+            new Chart(ctxWorkload, {
+                type: 'line',
+                data: {
+                    labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+                    datasets: [{
+                        label: 'Horas Entrenadas',
+                        data: [2, 1.5, 2.5, 1, 2, 3],
+                        borderColor: '#ff9f40',
+                        backgroundColor: '#ff9f40',
+                        fill: false,
+                        tension: 0.1
+                    }]
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
