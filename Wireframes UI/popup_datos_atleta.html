@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wireframe - Pop-up Datos Atleta</title>
+    <title>Wireframe - Completar Perfil de Seguridad</title>
     <style>
         /* Estilos base de Wireframe */
         :root {
@@ -25,11 +25,11 @@
             min-height: 100vh;
         }
 
-        /* Simulación del fondo (Explorador de equipos) */
+        /* Simulación del fondo (Home principal) */
         .mock-background {
             padding: 2rem;
             text-align: center;
-            opacity: 0.4; /* Opaco porque simula el fondo inactivo */
+            opacity: 0.3; /* Opaco porque simula el fondo inactivo */
         }
 
         .btn-outline {
@@ -56,7 +56,6 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            /* Visible por defecto para mostrar la validación inmediata */
             visibility: visible;
             opacity: 1;
             transition: opacity 0.3s ease;
@@ -163,26 +162,24 @@
 
     <!-- Fondo simulado para probar el disparador -->
     <div class="mock-background">
-        <h2>Vista de Fondo (Explorador)</h2>
-        <p>Estás en el explorador de equipos buscando un grupo para unirte.</p>
-        <a href="explorador_equipos.html" class="btn-outline">Volver al Explorador</a>
+        <h2>Vista de Fondo (Home de Inicio)</h2>
+        <p>Estás en tu pantalla de inicio después de iniciar sesión con Google.</p>
+        <a href="home_principal.html" class="btn-outline">Ir al Inicio</a>
     </div>
 
-    <!-- Modal / Pop-up -->
+    <!-- Modal / Pop-up de Completar Datos de Perfil -->
     <div class="modal-overlay" id="profileModal">
         <div class="modal-box">
             
             <div class="modal-header">
                 <h2>Completa tu Perfil (Datos de Seguridad)</h2>
-                <a href="explorador_equipos.html" class="btn-close" id="closeModalBtn">&times;</a>
+                <a href="home_principal.html" class="btn-close" id="closeModalBtn">&times;</a>
             </div>
 
             <div class="modal-body">
-                <p>Para garantizar tu seguridad y la de tu equipo, necesitamos algunos datos obligatorios antes de enviar la solicitud.</p>
+                <p>Para comenzar a utilizar Stride y poder unirte a equipos deportivos, requerimos que completes la información de seguridad de tu perfil general.</p>
                 
                 <form id="profileForm" onsubmit="submitForm(event)">
-                    <!-- El email y nombre ya los tenemos de Google, no hace falta pedirlos -->
-                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="phone">Teléfono Móvil</label>
@@ -211,7 +208,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn-primary" onclick="document.getElementById('hiddenSubmit').click()">Guardar y Enviar Solicitud</button>
+                <button class="btn-primary" onclick="document.getElementById('hiddenSubmit').click()">Guardar Perfil de Seguridad</button>
             </div>
 
         </div>
@@ -220,9 +217,8 @@
     <script>
         function submitForm(event) {
             event.preventDefault();
-            alert('Datos guardados exitosamente. Solicitud enviada al Administrador en estado de Pendiente de Aprobación.');
-            // Redirige al explorador con parámetro indicando que la solicitud está enviada
-            window.location.href = 'explorador_equipos.html?solicitud=enviada';
+            alert('Perfil de seguridad guardado globalmente. Ahora puedes explorar y unirte a cualquier equipo sin pasos adicionales de datos personales.');
+            window.location.href = 'home_principal.html?perfil_completado=true';
         }
     </script>
 </body>

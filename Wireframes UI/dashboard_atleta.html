@@ -325,6 +325,13 @@
                             <span class="status-badge" id="med-status" style="background-color: #e2f0d9; border-color: #a9d08e; color: #375623;">CARGADO</span>
                         </div>
                     </div>
+                    
+                    <!-- Motivo de Rechazo (Oculto por defecto, visible en simulación) -->
+                    <div id="rejection-reason-container" style="display: none; background-color: #fce4d6; border: 1px solid #f8cbad; border-radius: 4px; padding: 0.75rem; margin-top: 1rem; margin-bottom: 1rem; font-size: 0.85rem;">
+                        <strong style="color: #c65911; display: block; margin-bottom: 0.25rem;">Motivo del Rechazo:</strong>
+                        <span id="rejection-reason-text" style="color: #555;">El documento médico subido no cuenta con la firma del médico responsable ni sello clínico legible.</span>
+                    </div>
+
                     <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1rem;">
                         💡 <em>Nota: La vigencia y aprobación de tu apto médico es gestionada de manera independiente por cada club al que perteneces. Puedes ver el estado de tu habilitación médica dentro de la pestaña de cada club.</em>
                     </p>
@@ -333,7 +340,10 @@
                         <p><strong>Actualizar Certificado Médico</strong></p>
                         <p style="font-size: 0.85rem;">Sube tu nuevo certificado PDF o imagen para que los clubes lo auditen.</p>
                         <input type="file" id="file-input" style="display: none;" onchange="handleFileChange(event)">
-                        <button class="btn-action" style="padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="document.getElementById('file-input').click()">Seleccionar Archivo</button>
+                        <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                            <button class="btn-action" style="padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="document.getElementById('file-input').click()">Seleccionar Archivo</button>
+                            <button class="btn-action" style="padding: 0.5rem 1rem; font-size: 0.85rem; background-color: #7f6000;" onclick="simulateRejection()">Simular Apto Rechazado</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -366,8 +376,18 @@
                 statusBadge.style.backgroundColor = '#fff2cc';
                 statusBadge.style.borderColor = '#ffd966';
                 statusBadge.style.color = '#7f6000';
+                document.getElementById('rejection-reason-container').style.display = 'none';
                 alert('Apto Médico cargado correctamente. Los administradores de tus clubes recibirán el archivo para su revisión y aprobación.');
             }
+        }
+
+        function simulateRejection() {
+            const statusBadge = document.getElementById('med-status');
+            statusBadge.textContent = 'RECHAZADO';
+            statusBadge.style.backgroundColor = '#fce4d6';
+            statusBadge.style.borderColor = '#f8cbad';
+            statusBadge.style.color = '#c65911';
+            document.getElementById('rejection-reason-container').style.display = 'block';
         }
     </script>
 </body>

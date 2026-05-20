@@ -74,6 +74,9 @@
             background-color: var(--accent-gray);
             padding: 2.5rem 5%;
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .team-banner h1 {
@@ -226,8 +229,13 @@
 
     <!-- Encabezado del Equipo -->
     <div class="team-banner">
-        <h1>RV equipo de montaña</h1>
-        <p>Sede Principal • Grupo de Entrenamiento de Resistencia</p>
+        <div>
+            <h1>RV equipo de montaña</h1>
+            <p>Sede Principal • Grupo de Entrenamiento de Resistencia</p>
+        </div>
+        <div>
+            <button class="btn-outline" style="border-color: #c00000; color: #c00000;" onclick="resignFromTeam()">Darse de Baja</button>
+        </div>
     </div>
 
     <!-- Pestañas de la Página de Equipo -->
@@ -341,6 +349,13 @@
                 statusBadge.style.borderColor = '#ffd966';
                 statusBadge.style.color = '#7f6000';
                 alert('Comprobante de pago cargado correctamente. Queda pendiente de aprobación por el Administrador.');
+            }
+        }
+
+        function resignFromTeam() {
+            if (confirm("¿Estás seguro de que deseas darte de baja de RV equipo de montaña? Perderás acceso inmediato a las planificaciones y canales de este club.")) {
+                alert("Te has dado de baja del equipo exitosamente.");
+                window.location.href = "home_principal.html";
             }
         }
     </script>

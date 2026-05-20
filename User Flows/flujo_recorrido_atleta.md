@@ -12,24 +12,24 @@ graph TD
     D -- No (Nuevo) --> E[API: Registrar Atleta <br> con Nombre e Email]:::sistema
     D -- Sí (Existente) --> F[API: Verificar Roles y Permisos]:::sistema
     
-    E --> G[home_principal.html <br> Welcome Hub]:::pantalla
-    F --> G
+    E --> G_Check{¿Perfil de Seguridad <br> Completo?}:::decision
+    F --> G_Check
+    
+    G_Check -- No --> L[Mostrar Banner/Modal <br> popup_datos_atleta.html]:::pantalla
+    L --> M(Ingresar Teléfono, Nacimiento <br> y Contacto de Emergencia):::accion
+    M --> N(Click en 'Guardar Perfil'):::accion
+    N --> O[API: Guardar Perfil de Seguridad <br> Globalmente]:::sistema
+    O --> G[home_principal.html <br> Welcome Hub]:::pantalla
+    
+    G_Check -- Sí --> G
     
     G --> H(Click en 'Equipos'):::accion
     H --> I[explorador_equipos.html]:::pantalla
     
     I --> J(Click en 'Solicitar Unirse' a un Equipo):::accion
-    J --> K{¿Datos de Seguridad <br> Completos?}:::decision
+    J --> P[API: Registrar Solicitud]:::sistema
     
-    K -- No --> L[Mostrar Modal <br> popup_datos_atleta.html]:::pantalla
-    L --> M(Ingresar Teléfono, Nacimiento <br> y Contacto de Emergencia):::accion
-    M --> N(Click en 'Guardar y Enviar'):::accion
-    N --> O[API: Guardar Perfil y <br> Registrar Solicitud]:::sistema
-    
-    K -- Sí --> P[API: Registrar Solicitud]:::sistema
-    
-    O --> Q[explorador_equipos.html <br> Estado: Solicitud Enviada]:::pantalla
-    P --> Q
+    P --> Q[explorador_equipos.html <br> Estado: Solicitud Enviada]:::pantalla
     
     Q --> R{¿Aprobado por Admin <br> - Ruta B, Paso 3?}:::decision
     

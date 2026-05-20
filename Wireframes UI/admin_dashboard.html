@@ -495,7 +495,7 @@
                             <td>
                                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                     <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Ver Perfil</button>
-                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;">Eliminar</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem; border-color: #c00000; color: #c00000;" onclick="expelAthlete(this, 'Juan Pérez')">Expulsar</button>
                                 </div>
                             </td>
                         </tr>
@@ -507,7 +507,7 @@
                             <td>
                                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                     <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Ver Perfil</button>
-                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;">Eliminar</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem; border-color: #c00000; color: #c00000;" onclick="expelAthlete(this, 'María López')">Expulsar</button>
                                 </div>
                             </td>
                         </tr>
@@ -526,6 +526,7 @@
                                     <button class="btn btn-accept" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" id="btn-debt1" onclick="resolveDebt('debt1', 'Carlos Ruiz')">Verificar Pago</button>
                                     <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="alert('Recordatorio enviado a Carlos Ruiz.')">Aviso</button>
                                     <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Perfil</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem; border-color: #c00000; color: #c00000;" onclick="expelAthlete(this, 'Carlos Ruiz')">Expulsar</button>
                                 </div>
                             </td>
                         </tr>
@@ -544,6 +545,7 @@
                                     <button class="btn btn-accept" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" id="btn-debt2" onclick="resolveDebt('debt2', 'Ana Martínez')">Verificar Pago</button>
                                     <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="alert('Recordatorio enviado a Ana Martínez.')">Aviso</button>
                                     <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Perfil</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem; border-color: #c00000; color: #c00000;" onclick="expelAthlete(this, 'Ana Martínez')">Expulsar</button>
                                 </div>
                             </td>
                         </tr>
@@ -563,6 +565,7 @@
                                     <button class="btn btn-accept" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="approvePayment('pend1', 'Esteban Quito')">Aprobar Pago</button>
                                     <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="rejectPayment('pend1', 'Esteban Quito')">Rechazar Pago</button>
                                     <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="location.href='dashboard_atleta.html'">Perfil</button>
+                                    <button class="btn btn-reject" style="padding: 0.35rem 0.6rem; font-size: 0.8rem; border-color: #c00000; color: #c00000;" onclick="expelAthlete(this, 'Esteban Quito')">Expulsar</button>
                                 </div>
                             </td>
                         </tr>
@@ -816,12 +819,35 @@
         }
 
         function rejectMed(rowId, athleteName) {
-            if (!confirm(`¿Está seguro de que desea rechazar el apto médico de ${athleteName}?`)) {
+            const reason = prompt(`Ingresa el motivo de rechazo del apto médico de ${athleteName}:`);
+            if (reason === null) {
+                return; // Si cancela, no hace nada
+            }
+            if (reason.trim() === '') {
+                alert("Debes ingresar un motivo de rechazo válido.");
                 return;
             }
             const row = document.getElementById(rowId);
-            alert(`Apto médico de ${athleteName} rechazado. Se enviará una notificación para que cargue un nuevo documento.`);
-            row.style.display = 'none';
+            
+            // Cambiar el badge de estado a RECHAZADO con el motivo en la tabla
+            const badge = row.cells[2].querySelector('.badge');
+            badge.className = 'badge badge-danger';
+            badge.innerHTML = `Rechazado <br><span style="font-size: 0.8rem; font-weight: normal; color: #555;">Motivo: ${reason}</span>`;
+            
+            // Cambiar celda de acciones
+            row.cells[3].innerHTML = `<span style="font-size: 0.85rem; color: #c00000; font-weight: bold;">Rechazado</span>`;
+            
+            alert(`Apto médico de ${athleteName} rechazado. Motivo registrado: "${reason}".`);
+        }
+
+        function expelAthlete(button, athleteName) {
+            if (confirm(`¿Estás seguro de que deseas expulsar o dar de baja a ${athleteName} de este club?`)) {
+                const row = button.closest('tr');
+                row.remove();
+                alert(`El atleta ${athleteName} ha sido expulsado y desvinculado del club.`);
+                activeAthletesCount--;
+                document.getElementById('kpi-actives').textContent = activeAthletesCount;
+            }
         }
 
         // Inicializar Gráficos de Chart.js

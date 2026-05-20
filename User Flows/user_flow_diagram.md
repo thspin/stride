@@ -24,8 +24,8 @@ graph TD
         A3["Home Principal home_principal.html"]:::atleta
         A4["Explorador de Equipos explorador_equipos.html"]:::atleta
         A5("Clic en 'Solicitar Unirse'"):::atleta
-        A6["Modal: popup_datos_atleta.html"]:::atleta
-        A7("Enviar Formulario de Seguridad"):::atleta
+        A6["Modal/Banner: popup_datos_atleta.html"]:::atleta
+        A7("Completar Perfil de Seguridad"):::atleta
         A8["explorador_equipos.html (Estado: Solicitud Enviada)"]:::atleta
         A9["Página de Club pagina_equipo.html"]:::atleta
         A10["Mi perfil dashboard_atleta.html"]:::atleta
@@ -43,7 +43,7 @@ graph TD
         S3["Crear registro en DB <br>(Nombre, Email) <br> Estado de Membresías: 'Vacío'"]:::backend
         S4["Iniciar Sesión de Atleta <br>(Generar Token JWT y verificar Roles)"]:::backend
         S5{"¿Atleta tiene <br> Teléfono, Nac. <br> y Emergencia en DB?"}:::decision
-        S6["Guardar datos de seguridad y <br> Registrar Solicitud de Club <br> Estado Solicitud: 'Pendiente'"]:::backend
+        S6["Guardar datos de seguridad globalmente <br> en Perfil de Usuario"]:::backend
         S7{"¿Estado de Solicitud <br> de Club en DB?"}:::decision
         S8["Registrar Solicitud de Club <br> Estado Solicitud: 'Pendiente'"]:::backend
         S9["Almacenar Certificado Médico <br>(Cloud Storage & URL en DB) <br> Estado Apto: 'En Revisión'"]:::backend
@@ -85,20 +85,19 @@ graph TD
     S2 -- No --> S3
     S3 --> S4
     S2 -- Sí --> S4
-    S4 --> A3
+    S4 --> S5
+    
+    %% Flujo 3: Evaluación de Datos del Atleta (Onboarding en Home)
+    S5 -- No --> A6
+    A6 --> A7
+    A7 --> S6
+    S6 --> A3
+    S5 -- Sí --> A3
     
     %% Flujo 2: Navegación & Selección de Equipo
     A3 --> |"Ir a Equipos"| A4
     A4 --> A5
-    A5 --> S5
-    
-    %% Flujo 3: Evaluación de Datos del Atleta
-    S5 -- No --> A6
-    A6 --> A7
-    A7 --> S6
-    S5 -- Sí --> S8
-    
-    S6 --> A8
+    A5 --> S8
     S8 --> A8
 
     %% Sincronización 1: El Atleta espera a que el Administrador actúe
@@ -180,12 +179,14 @@ Un atleta puede pertenecer a múltiples equipos en paralelo. En cada uno, la mem
 ```mermaid
 stateDiagram-v2
     [*] --> Registrado : Google Auth (Sin membresías en este club)
-    Registrado --> Solicitud_Pendiente : Clic en Unirse (Formulario Seguridad OK)
+    Registrado --> Completar_Perfil : Perfil Incompleto (Alerta en Home)
+    Completar_Perfil --> Registrado : Carga de datos de seguridad
+    Registrado --> Solicitud_Pendiente : Clic en Unirse a Equipo
     Solicitud_Pendiente --> Miembro_Activo : Administrador aprueba (Admitir)
     Solicitud_Pendiente --> Solicitud_Rechazada : Administrador rechaza
     Solicitud_Rechazada --> Registrado : Reintento / Selección de otro club
     Miembro_Activo --> [*] : Baja Autónoma del Atleta (Confirmación UI)
-    Miembro_Activo --> [*] : Expulsión por Administrador (Confirmación UI)
+    Miembro_Activo --> [*] : Expulsar Atleta por Administrador (Confirmación UI)
 ```
 
 ### 2. Ciclo de Vida del Apto Médico (Certificado Relacional)
@@ -226,8 +227,8 @@ stateDiagram-v2
    * **Resolución:** El frontend atrapa la promesa fallida del SDK de Google, no realiza ninguna petición al backend y permanece en [acceso_plataforma.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/acceso_plataforma.html) permitiéndole reintentar.
 
 2. **Formulario de Seguridad Incompleto:**
-   * **Problema:** El Atleta intenta unirse a un club sin datos de seguridad mínimos.
-   * **Resolución:** El backend realiza validaciones estrictas a nivel de API (validación de esquemas). Si los campos obligatorios están ausentes o vacíos, la API devuelve `400 Bad Request` y el frontend abre el modal [popup_datos_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/popup_datos_atleta.html).
+   * **Problema:** El Atleta intenta navegar o unirse a un club sin datos de seguridad mínimos.
+   * **Resolución:** El backend realiza validaciones estrictas a nivel de API (validación de esquemas). Si los campos obligatorios están ausentes o vacíos en el perfil al iniciar sesión en el Home, la API de perfil general indica que está incompleto y el frontend abre el banner/modal de onboarding [popup_datos_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/popup_datos_atleta.html).
 
 3. **Rechazo de Documento Médico con Motivo:**
    * **Problema:** Un atleta sube un PDF vacío o una foto borrosa.

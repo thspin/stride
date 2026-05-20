@@ -52,24 +52,24 @@ graph TD
     D -- No (Nuevo) --> E[API: Registrar Atleta <br> con Nombre e Email]:::sistema
     D -- Sí (Existente) --> F[API: Verificar Roles y Permisos]:::sistema
     
-    E --> G[home_principal.html <br> Welcome Hub]:::pantalla
-    F --> G
+    E --> G_Check{¿Perfil de Seguridad <br> Completo?}:::decision
+    F --> G_Check
+    
+    G_Check -- No --> L[Mostrar Banner/Modal <br> popup_datos_atleta.html]:::pantalla
+    L --> M(Ingresar Teléfono, Nacimiento <br> y Contacto de Emergencia):::accion
+    M --> N(Click en 'Guardar Perfil'):::accion
+    N --> O[API: Guardar Perfil de Seguridad <br> Globalmente]:::sistema
+    O --> G[home_principal.html <br> Welcome Hub]:::pantalla
+    
+    G_Check -- Sí --> G
     
     G --> H(Click en 'Equipos'):::accion
     H --> I[explorador_equipos.html]:::pantalla
     
     I --> J(Click en 'Solicitar Unirse' a un Equipo):::accion
-    J --> K{¿Datos de Seguridad <br> Completos?}:::decision
+    J --> P[API: Registrar Solicitud]:::sistema
     
-    K -- No --> L[Mostrar Modal <br> popup_datos_atleta.html]:::pantalla
-    L --> M(Ingresar Teléfono, Nacimiento <br> y Contacto de Emergencia):::accion
-    M --> N(Click en 'Guardar y Enviar'):::accion
-    N --> O[API: Guardar Perfil y <br> Registrar Solicitud]:::sistema
-    
-    K -- Sí --> P[API: Registrar Solicitud]:::sistema
-    
-    O --> Q[explorador_equipos.html <br> Estado: Solicitud Enviada]:::pantalla
-    P --> Q
+    P --> Q[explorador_equipos.html <br> Estado: Solicitud Enviada]:::pantalla
     
     Q --> R{¿Aprobado por Admin <br> - Ruta B, Paso 3?}:::decision
     
@@ -110,11 +110,11 @@ graph TD
 | :---: | :--- | :--- | :--- | :--- | :--- |
 | **1** | [acceso_plataforma.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/acceso_plataforma.html) | Hace clic en "Continuar con Google". | Dispara el flujo de autenticación única de Google OAuth. | Proceso de autenticación | Si el usuario cancela la autenticación, regresa a [acceso_plataforma.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/acceso_plataforma.html). |
 | **2** | *Intermedio* | Otorga permisos en cuenta de Google. | **Roles:** Verifica el email en la base de datos para mapear sus roles (puede ser atleta en un club y administrador de otro). | [home_principal.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/home_principal.html) | Si falla la conexión con la API de Google, redirige con un mensaje de error técnico. |
-| **3** | [home_principal.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/home_principal.html) | Hace clic en la opción "Equipos" del menú superior. | Carga los clubes y grupos deportivos disponibles en la plataforma. | [explorador_equipos.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/explorador_equipos.html) | También puede navegar a su perfil general o buscador de eventos. |
-| **4** | [explorador_equipos.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/explorador_equipos.html) | Revisa los equipos disponibles y selecciona uno para unirse. | - | - | El atleta puede enviar solicitudes a múltiples equipos independientes en paralelo. |
-| **5** | [explorador_equipos.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/explorador_equipos.html) | Hace clic en "Solicitar Unirse". | Verifica si posee completos los datos de seguridad (teléfono, contacto de emergencia). | Decisión del sistema | Si tiene los datos, salta al **Paso 7**. |
-| **6** | [popup_datos_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/popup_datos_atleta.html) (Modal) | Ingresa teléfono, fecha de nacimiento y contacto de emergencia. | Valida formatos de los datos requeridos. | - | Si hay errores, resalta los campos no válidos. |
-| **7** | [popup_datos_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/popup_datos_atleta.html) (Modal) | Hace clic en "Guardar y Enviar". | Registra la solicitud de membresía vinculada a ese club específico en estado `Pendiente de Aprobación`. | [explorador_equipos.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/explorador_equipos.html) | El botón se deshabilita mostrando "Solicitud Enviada". |
+| **3** | [home_principal.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/home_principal.html) | Al ingresar a la pantalla. | El sistema verifica si el perfil posee completos los datos de seguridad (teléfono y contacto de emergencia). | [home_principal.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/home_principal.html) | Si no los tiene, muestra el banner/modal de onboarding ([popup_datos_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/popup_datos_atleta.html)). |
+| **4** | [popup_datos_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/popup_datos_atleta.html) (Modal) | Ingresa teléfono, fecha de nacimiento y contacto de emergencia y hace clic en "Guardar Perfil". | Guarda los datos en el perfil general del atleta. | [home_principal.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/home_principal.html) (Actualizado) | Si hay errores de formato, los resalta en rojo. |
+| **5** | [home_principal.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/home_principal.html) | Hace clic en la opción "Equipos" del menú superior. | Carga los clubes y grupos deportivos disponibles en la plataforma. | [explorador_equipos.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/explorador_equipos.html) | - |
+| **6** | [explorador_equipos.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/explorador_equipos.html) | Revisa los equipos disponibles y selecciona uno para unirse. | - | - | El atleta puede enviar solicitudes a múltiples equipos independientes en paralelo. |
+| **7** | [explorador_equipos.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/explorador_equipos.html) | Hace clic en "Solicitar Unirse". | Registra la solicitud de membresía vinculada al club en estado `Pendiente de Aprobación` de manera directa. | [explorador_equipos.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/explorador_equipos.html) | Requiere confirmación previa en UI. El botón cambia a "Solicitud Enviada (Pendiente)". |
 | **8** | [home_principal.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/home_principal.html) | Accede una vez aprobada su solicitud. | Carga la vinculación activa y le permite ver la página del equipo en estado de pago inicial `PENDIENTE`. | [pagina_equipo.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/pagina_equipo.html) | - |
 | **9** | [pagina_equipo.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/pagina_equipo.html) | Va a la pestaña "Mi Suscripción". | Carga el estado de cuota del mes (inicialmente `PENDIENTE`, requiere cargar comprobante). | Pestaña "Mi Suscripción" | - |
 | **10** | [pagina_equipo.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/pagina_equipo.html) | Sube un comprobante de transferencia o pago mensual. | Registra el archivo y cambia el estado de la cuota a `PENDIENTE` (esperando verificación de administración). | Vista de Suscripción | El estado cambia visualmente a "PENDIENTE" con un aviso. |

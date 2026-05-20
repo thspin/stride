@@ -241,6 +241,15 @@
 
     <!-- Contenido del Home -->
     <main>
+        <!-- Banner de Perfil Incompleto (Simulación) -->
+        <div id="safety-alert-banner" style="background-color: #fce4d6; border: 1px solid #f8cbad; border-radius: 6px; padding: 1rem 1.5rem; max-width: 600px; width: 100%; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; text-align: left;">
+            <div>
+                <strong style="color: #c65911; display: block; margin-bottom: 0.25rem;">⚠️ Perfil de Seguridad Incompleto</strong>
+                <span style="font-size: 0.9rem; color: #555555;">Requerimos tu teléfono y contacto de emergencia antes de poder solicitar unirte a equipos.</span>
+            </div>
+            <a href="popup_datos_atleta.html" class="btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem; flex-shrink: 0; margin-left: 1rem;">Completar Perfil</a>
+        </div>
+
         <div class="welcome-card">
             <h1>Bienvenido a la Plataforma</h1>
             <p>Tu portal de entrenamiento. Encuentra eventos deportivos y gestiona tus suscripciones y documentación médica de forma simple.</p>
@@ -277,5 +286,16 @@
         </div>
     </main>
 
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const banner = document.getElementById('safety-alert-banner');
+            // Si viene con el parámetro perfil_completado, ocultamos la alerta
+            if (urlParams.get('perfil_completado') === 'true' || localStorage.getItem('perfil_completado') === 'true') {
+                if (banner) banner.style.display = 'none';
+                localStorage.setItem('perfil_completado', 'true');
+            }
+        });
+    </script>
 </body>
 </html>

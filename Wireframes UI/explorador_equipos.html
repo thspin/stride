@@ -222,12 +222,12 @@
                 <img src="file:///C:/Users/pnm19/.gemini/antigravity/brain/703f56a1-ab42-4806-84fe-f19de479cb62/rv_mountain_1779220112769.png" alt="RV equipo de montaña" class="team-card-image">
                 <div class="team-content">
                     <h3>RV equipo de montaña</h3>
-                    <p>Preparación intensiva para carreras de montaña y maratones. Entrenamiento enfocado en distancias de 10K y 21K.</p>
+                    <p>Preparación intensiva para carreras de montaña y maratones. Entrenamiento enfocado en distancias de 10K and 21K.</p>
                     <div class="team-meta">
                         <span>📍 Cuyo</span>
                         <span>👥 45 Atletas</span>
                     </div>
-                    <a href="popup_datos_atleta.html" class="btn-primary">Solicitar Unirse</a>
+                    <a href="javascript:void(0)" class="btn-primary" onclick="requestJoin(this, 'RV equipo de montaña')">Solicitar Unirse</a>
                 </div>
             </div>
 
@@ -241,7 +241,7 @@
                         <span>📍 La Rioja</span>
                         <span>👥 28 Atletas</span>
                     </div>
-                    <a href="popup_datos_atleta.html" class="btn-primary" id="btn-ejemplo1">Solicitar Unirse</a>
+                    <a href="javascript:void(0)" class="btn-primary" id="btn-ejemplo1" onclick="requestJoin(this, 'Equipo de ejemplo 1')">Solicitar Unirse</a>
                 </div>
             </div>
 
@@ -255,7 +255,7 @@
                         <span>📍 Patagonia</span>
                         <span>👥 15 Atletas</span>
                     </div>
-                    <a href="popup_datos_atleta.html" class="btn-primary">Solicitar Unirse</a>
+                    <a href="javascript:void(0)" class="btn-primary" onclick="requestJoin(this, 'Equipo de ejemplo 2')">Solicitar Unirse</a>
                 </div>
             </div>
 
@@ -263,7 +263,16 @@
     </main>
 
     <script>
-        // Lógica de detección de solicitud enviada
+        function requestJoin(button, teamName) {
+            if (confirm(`¿Estás seguro de que deseas enviar una solicitud para unirte a "${teamName}"?`)) {
+                button.className = 'btn-primary btn-pending';
+                button.textContent = 'Solicitud Enviada (Pendiente)';
+                button.style.pointerEvents = 'none';
+                alert(`Tu solicitud para unirte a "${teamName}" ha sido enviada al administrador en estado Pendiente.`);
+            }
+        }
+
+        // Lógica de detección de solicitud enviada anterior
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('solicitud') === 'enviada') {
@@ -271,9 +280,7 @@
                 if (btnEjemplo1) {
                     btnEjemplo1.className = 'btn-primary btn-pending';
                     btnEjemplo1.textContent = 'Solicitud Enviada (Pendiente)';
-                    btnEjemplo1.removeAttribute('href');
                     btnEjemplo1.style.pointerEvents = 'none';
-                    alert('Has regresado al explorador. Tu solicitud para "Equipo de ejemplo 1" se muestra en estado Pendiente.');
                 }
             }
         });
