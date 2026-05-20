@@ -7,8 +7,8 @@ stateDiagram-v2
     [*] --> No_Entregado : Alta en el equipo
     No_Entregado --> En_Revision : Atleta sube PDF/JPG
     En_Revision --> Vigente : Administrador valida PDF y define vigencia (1-12 meses)
-    En_Revision --> Rechazado : Administrador invalida PDF (ilegible/incorrecto)
-    Rechazado --> En_Revision : Atleta vuelve a subir archivo corregido
-    Vigente --> Vencido : Fecha actual > Fecha de vencimiento
+    En_Revision --> Rechazado : Administrador rechaza e ingresa motivo de rechazo
+    Rechazado --> En_Revision : Atleta visualiza motivo y sube archivo corregido
+    Vigente --> Vencido : Fecha actual > Fecha de vencimiento (Cálculo dinámico al vuelo)
     Vencido --> En_Revision : Atleta sube renovación
 ```

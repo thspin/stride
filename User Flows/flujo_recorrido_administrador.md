@@ -30,10 +30,15 @@ graph TD
     M_OK --> L1
     M_NO --> L1
     
+    L1 --> M_Baja(Click en 'Expulsar/Dar de Baja' a un Atleta):::accion
+    M_Baja --> M_Baja_Conf{¿Confirmar en UI?}:::decision
+    M_Baja_Conf -- Sí --> M_Baja_API[API: Dar de baja relacion Atleta-Equipo <br> Estado: Inactivo/Eliminado]:::sistema
+    M_Baja_API --> L1
+
     L2 --> N(Ver PDF del certificado médico, <br> seleccionar vigencia de 1 a 12 meses o rechazar):::accion
     N --> N_API{¿Aprobar o Rechazar?}:::decision
     N_API -- Aprobar --> N_OK[API: Calcular expiración y <br> Aprobar Apto Médico como 'Vigente' relacional]:::sistema
-    N_API -- Rechazar --> N_NO[API: Cambiar Apto a 'Rechazado']:::sistema
+    N_API -- Rechazar --> N_NO[API: Cambiar Apto a 'Rechazado' <br> e ingresar motivo de rechazo]:::sistema
     N_OK --> L2
     N_NO --> L2
 ```

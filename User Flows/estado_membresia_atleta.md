@@ -9,5 +9,6 @@ stateDiagram-v2
     Solicitud_Pendiente --> Miembro_Activo : Administrador aprueba en admin_dashboard.html (Admitir)
     Solicitud_Pendiente --> Solicitud_Rechazada : Administrador rechaza
     Solicitud_Rechazada --> Registrado : Reintento (Permite postular a este u otro club)
-    Miembro_Activo --> [*] : Salir del Equipo / Baja
+    Miembro_Activo --> [*] : Baja Autónoma del Atleta (Confirmación UI)
+    Miembro_Activo --> [*] : Expulsión por Administrador (Confirmación UI)
 ```

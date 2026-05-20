@@ -25,7 +25,7 @@ graph TD
 
 ## 🏃‍♂️ Ruta A: El Recorrido del Atleta
 
-Describe el viaje del atleta desde su registro rápido y la postulación a un equipo, hasta su vida activa dentro del equipo, carga de comprobantes de pago y documentación médica.
+Describe el viaje del atleta desde su registro rápido y la postulación a un equipo, hasta su vida activa dentro del equipo, carga de comprobantes de pago, documentación médica y gestión de baja autónoma.
 
 ### 1. Ficha Técnica (Ruta A)
 
@@ -33,8 +33,8 @@ Describe el viaje del atleta desde su registro rápido y la postulación a un eq
 | :--- | :--- |
 | **Actor Principal** | Atleta (Nuevo o Existente, con capacidad de unirse a múltiples clubes) |
 | **Precondición** | El atleta posee una cuenta de Google. |
-| **Postcondición** | El atleta es miembro activo del equipo, accede a pestañas de gestión, sube comprobantes de pago y actualiza su apto médico. |
-| **Objetivo** | Unirse a uno o varios equipos de entrenamiento y gestionar sus pagos y aptos de manera descentralizada por club. |
+| **Postcondición** | El atleta es miembro activo del equipo, accede a pestañas de gestión, sube comprobantes de pago, actualiza su apto médico o puede darse de baja voluntariamente. |
+| **Objetivo** | Unirse a uno o varios equipos de entrenamiento, gestionar sus pagos y aptos de manera descentralizada por club, o darse de baja. |
 
 ### 2. Diagrama de Flujo (Ruta A)
 
@@ -81,10 +81,23 @@ graph TD
     T --> T2[dashboard_atleta.html <br> Pestaña: Mis tickets]:::pantalla
     T --> T3[dashboard_atleta.html <br> Pestaña: Mi perfil <br> (Datos Google, Seguridad, Apto)]:::pantalla
     T --> T4[pagina_equipo.html <br> Pestaña: Mi Suscripción]:::pantalla
+    T --> T5(Click en 'Darse de Baja' del Equipo):::accion
     
+    T5 --> T5_Conf{¿Confirmar en UI?}:::decision
+    T5_Conf -- Sí --> T5_API[API: Registrar Baja del Equipo]:::sistema
+    T5_API --> T5_Out[Volver a explorador_equipos.html <br> Estado: No Miembro]:::pantalla
+
     T3 --> U(Subir PDF/JPG de Apto Médico):::accion
     U --> V[API: Subir Archivo y <br> Actualizar Estado de Apto]:::sistema
     V --> W[Estado Apto: Pendiente de Revisión]:::pantalla
+    
+    W --> W_Reject{¿Rechazado por Admin?}:::decision
+    W_Reject -- Sí --> W_Msg[Visualizar Motivo de Rechazo en UI]:::pantalla
+    W_Msg --> U
+
+    T3 --> Z_Edit(Editar Teléfono o Contacto de Emergencia):::accion
+    Z_Edit --> Z_API[API: Guardar Datos de Seguridad <br> Globalmente - Sin Notificaciones]:::sistema
+    Z_API --> T3
 
     T4 --> X(Subir comprobante de pago):::accion
     X --> Y[API: Guardar Comprobante <br> y cambiar estado de cuota]:::sistema
@@ -105,13 +118,15 @@ graph TD
 | **8** | [home_principal.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/home_principal.html) | Accede una vez aprobada su solicitud. | Carga la vinculación activa y le permite ver la página del equipo en estado de pago inicial `PENDIENTE`. | [pagina_equipo.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/pagina_equipo.html) | - |
 | **9** | [pagina_equipo.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/pagina_equipo.html) | Va a la pestaña "Mi Suscripción". | Carga el estado de cuota del mes (inicialmente `PENDIENTE`, requiere cargar comprobante). | Pestaña "Mi Suscripción" | - |
 | **10** | [pagina_equipo.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/pagina_equipo.html) | Sube un comprobante de transferencia o pago mensual. | Registra el archivo y cambia el estado de la cuota a `PENDIENTE` (esperando verificación de administración). | Vista de Suscripción | El estado cambia visualmente a "PENDIENTE" con un aviso. |
-| **11** | [dashboard_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/dashboard_atleta.html) (Mi perfil) | Sube un certificado médico PDF/JPG. | Sube el documento y actualiza el estado de apto de su perfil a `Pendiente de Revisión` para este club. | Perfil del Atleta | Si el archivo excede los límites, se muestra una alerta. |
+| **11** | [dashboard_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/dashboard_atleta.html) (Mi perfil) | Sube un certificado médico PDF/JPG. | Sube el documento y actualiza el estado de apto de su perfil a `Pendiente de Revisión` para este club. | Perfil del Atleta | Si el archivo excede los límites, se muestra una alerta. Si es rechazado, se le mostrará el motivo de rechazo aquí. |
+| **12** | [pagina_equipo.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/pagina_equipo.html) | Hace clic en "Darse de Baja". | Despliega un popup de confirmación en la UI. Si confirma, desvincula al atleta. | [explorador_equipos.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/explorador_equipos.html) | La membresía pasa a estado Inactivo/Baja en DB. |
+| **13** | [dashboard_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/dashboard_atleta.html) (Mi perfil) | Edita sus datos de seguridad (teléfono o contacto de emergencia). | Guarda las modificaciones globalmente en su registro de perfil. | [dashboard_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/dashboard_atleta.html) | La actualización es silenciosa y no envía notificaciones a los administradores de los clubes a los que pertenece. |
 
 ---
 
 ## 💼 Ruta B: El Recorrido del Administrador (SaaS)
 
-Describe el flujo de control para administradores deportivos de un club, enfocado en el inicio de sesión con Google, gestión de admisiones, cobros con medios de pago y validación de aptos con vencimiento configurable.
+Describe el flujo de control para administradores deportivos de un club, enfocado en el inicio de sesión con Google, gestión de admisiones, cobros con medios de pago, validación de aptos con vencimiento configurable y expulsión de atletas.
 
 ### 1. Ficha Técnica (Ruta B)
 
@@ -119,8 +134,8 @@ Describe el flujo de control para administradores deportivos de un club, enfocad
 | :--- | :--- |
 | **Actor Principal** | Administrador de un Club (Un usuario puede administrar un club y ser atleta en otro) |
 | **Precondición** | Registro de cuenta y rol de administración asignado al email de Google en base de datos. |
-| **Postcondición** | Gestiona solicitudes de membresía, audita aptos médicos configurando meses de vigencia, y aprueba comprobantes de pago seleccionando el medio correspondiente. |
-| **Objetivo** | Controlar la operación del club, cuotas mensuales y estado de aptos médicos de sus atletas. |
+| **Postcondición** | Gestiona solicitudes de membresía, audita aptos médicos configurando meses de vigencia (o rechazándolos con motivo), aprueba comprobantes de pago seleccionando el medio correspondiente y expulsa miembros. |
+| **Objetivo** | Controlar la operación del club, cuotas mensuales, estado de aptos médicos y miembros de sus atletas. |
 
 ### 2. Diagrama de Flujo (Ruta B)
 
@@ -153,10 +168,20 @@ graph TD
     I3 --> I4
     I4 --> I5[API: Cambiar Estado a 'Pagado' <br> y guardar medio de pago]:::sistema
     
+    I --> I6(Click en 'Expulsar/Dar de Baja' a un atleta):::accion
+    I6 --> I7{¿Confirmar en UI?}:::decision
+    I7 -- Sí --> I8[API: Dar de baja relacion Atleta-Equipo <br> Estado: Inactivo/Eliminado]:::sistema
+    I8 --> I
+
     J --> J1(Visualizar certificado del atleta):::accion
-    J1 --> J2(Seleccionar vigencia: 1 a 12 meses):::accion
-    J2 --> J3(Click en 'Aprobar Apto'):::accion
-    J3 --> J4[API: Calcular fecha vencimiento <br> y guardar Apto como Vigente]:::sistema
+    J1 --> J2{¿Aprobar o Rechazar?}:::decision
+    J2 -- Aprobar --> J3(Seleccionar vigencia: 1 a 12 meses)
+    J3 --> J4(Click en 'Aprobar Apto'):::accion
+    J4 --> J5[API: Calcular fecha vencimiento <br> y guardar Apto como Vigente]:::sistema
+    
+    J2 -- Rechazar --> J6(Ingresar motivo de rechazo)
+    J6 --> J7(Click en 'Rechazar Apto'):::accion
+    J7 --> J8[API: Guardar Apto como Rechazado <br> y almacenar motivo]:::sistema
 ```
 
 ### 3. Matriz de Pasos Detallada (Ruta B)
@@ -168,9 +193,10 @@ graph TD
 | **3** | [admin_dashboard.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/admin_dashboard.html) (Solicitudes) | Hace clic en "Admitir" o "Rechazar" a un postulante (requiere confirmación). | Si aprueba, crea el registro de vinculación club-atleta. El atleta ingresa con estado de pago inicial `PENDIENTE`. | Solicitudes (Actualizada) | El atleta es notificado en la UI en su próxima sesión. |
 | **4** | [admin_dashboard.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/admin_dashboard.html) (Atletas) | Revisa la tabla de cuotas mensuales. | Muestra atletas en estados: `Pagado`, `Vencido` o `Pendiente`. | Atletas y Suscripciones | El admin puede filtrar por estado para agilizar la gestión. |
 | **5** | [admin_dashboard.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/admin_dashboard.html) (Atletas) | Para atleta `Pendiente`: Abre comprobante. Puede hacer clic en "Aprobar Pago" o "Rechazar Pago". Para atleta `Vencido`: Registra pago manual. | Ofrece selector de medio de pago (Transferencia, Efectivo, Tarjeta). | - | - |
-| **6** | [admin_dashboard.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/admin_dashboard.html) (Atletas) | Hace clic en "Aprobar Pago" / "Verificar Pago" / "Rechazar Pago" (requiere confirmación). | Si aprueba, guarda el medio y pasa a `Pagado`. Si rechaza, la cuota pasa a `Vencido` requiriendo una nueva carga por parte del atleta. | Atletas (Actualizada) | - |
+| **6** | [admin_dashboard.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/admin_dashboard.html) (Atletas) | Hace clic en "Aprobar Pago" / "Verificar Pago" / "Rechazar Pago" (requiere confirmación). | Si aprueba, guarda el medio y pasa a `Pagado`. Si rechaza, la cuota pasa a `Vencido` (vía proceso de verificación o cron job) requiriendo una nueva carga por parte del atleta. | Atletas (Actualizada) | - |
 | **7** | [admin_dashboard.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/admin_dashboard.html) (Aptos) | Navega a la pestaña de "Aptos Médicos" para auditar archivos. | Lista atletas con aptos médicos pendientes de revisión. | Aptos Médicos | - |
-| **8** | [admin_dashboard.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/admin_dashboard.html) (Aptos) | Audita el certificado y selecciona la vigencia (dropdown 1 a 12 meses) para aprobar, o hace clic en rechazar (requiere confirmación). | Calcula la fecha sumando los meses seleccionados a hoy, guardándolo como `Vigente` relacionalmente. Si rechaza, se marca como `Rechazado`. | Aptos Médicos (Actualizada) | Si rechaza el certificado, el atleta vuelve a estado no-vigente en el club y se le pide cargar uno nuevo. |
+| **8** | [admin_dashboard.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/admin_dashboard.html) (Aptos) | Audita el certificado y selecciona la vigencia (dropdown 1 a 12 meses) para aprobar, o hace clic en rechazar e ingresa un motivo (ambos requieren confirmación). | Si aprueba: Calcula fecha de vencimiento (`Hoy + N meses`). Si rechaza: Guarda el motivo y pasa el estado a `Rechazado`. | Aptos Médicos (Actualizada) | Si rechaza el certificado, el atleta vuelve a estado no-vigente en el club y se le pide cargar uno nuevo mostrando el motivo. |
+| **9** | [admin_dashboard.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/admin_dashboard.html) (Atletas) | Hace clic en "Expulsar/Dar de Baja" en la fila de un atleta activo. | Despliega un popup de confirmación en la UI. Si confirma, finaliza la relación atleta-equipo en la DB. | Atletas (Actualizada) | El atleta ya no tiene acceso a las pantallas privadas de este club. |
 
 ---
 
@@ -179,14 +205,21 @@ graph TD
 1. **Autenticación Unificada (Google Auth) y Selector de Rol:**
    - El sistema ya no contiene inicio de sesión clásico con contraseñas para administradores. Todos acceden usando Google. Tras autenticar, el middleware lee los roles del usuario. Si tiene roles de atleta y de administrador, se habilita un selector de rol ("Rol: Atleta / Administrador") en la barra de navegación de la cabecera, permitiendo conmutar entre los dashboards en cualquier pantalla.
 
-2. **Membresías Independientes y Aprobación Relacional del Apto Médico:**
-   - Un atleta puede pertenecer a múltiples clubes. El estado de su membresía, cuotas y aptos médicos se asocia de forma relacional al vínculo `Atleta_Club`. Cada club audita independientemente el apto médico del atleta y establece su propia vigencia (de 1 a 12 meses). Esto previene inconsistencias si un club aprueba el certificado por un tiempo determinado y otro lo rechaza o requiere plazos diferentes.
+2. **Membresías Independientes y Vencimiento Dinámico del Apto Médico:**
+   - Un atleta puede pertenecer a múltiples clubes. El estado de su membresía y cuotas se asocian de forma relacional al vínculo `Atleta_Club`. Cada club audita independientemente el apto médico del atleta y establece su propia vigencia (de 1 a 12 meses). El estado `Vencido` del apto médico se calcula **dinámicamente en tiempo real (al vuelo)** comparando la fecha de vencimiento configurada con la fecha actual, evitando persistir un estado estático innecesario.
 
 3. **Verificación y Rechazo de Cobro Provisorio:**
-   - El atleta reporta pagos subiendo comprobantes (cuota pasa a `Pendiente`). El administrador realiza la auditoría visual. Puede **Aprobar** (seleccionando medio de pago) o **Rechazar** el comprobante. Si lo rechaza, la cuota pasa a `Vencido` y se le notifica al atleta en su panel para que suba un comprobante válido.
+   - El atleta reporta pagos subiendo comprobantes (cuota pasa a `Pendiente`). El administrador realiza la auditoría visual. Puede **Aprobar** (seleccionando medio de pago) o **Rechazar** el comprobante. Si lo rechaza, la cuota pasa a `Vencido`. El vencimiento ordinario mensual ocurre automáticamente mediante un proceso programado (Cron Job mensual) al finalizar el ciclo de facturación de cada club.
 
 4. **Ingreso en Estado Pago Pendiente:**
    - Todo atleta recién admitido a un equipo ingresa con el estado de cuota inicial en `Pendiente` (Pago Requerido), asegurando que deba reportar su pago inicial antes de figurar como activo y habilitado al día.
 
 5. **Confirmación Obligatoria de Acciones Críticas:**
-   - Para mitigar errores operativos del administrador, cualquier acción crítica (admitir/rechazar solicitudes de atletas, aprobar/rechazar pagos, aprobar/rechazar aptos médicos) requiere una confirmación emergente (pop-up) en la interfaz antes de impactar el estado en el sistema.
+   - Para mitigar errores operativos del administrador y del atleta, cualquier acción crítica (admitir/rechazar solicitudes, aprobar/rechazar pagos, aprobar/rechazar aptos médicos, baja autónoma o expulsión) requiere una confirmación emergente (pop-up) en la interfaz antes de impactar el estado en el sistema.
+
+6. **Bajas y Expulsiones Diferenciadas:**
+   - **Baja Autónoma (Iniciada por Atleta):** El atleta puede darse de baja voluntariamente de cualquier club en el que sea miembro activo desde su panel de club.
+   - **Expulsión (Iniciada por Administrador):** El administrador del club puede dar de baja (expulsar) a un atleta desde la tabla general de atletas del dashboard. Ambas operaciones cambian la relación a inactiva y quitan los accesos a los paneles del club.
+
+7. **Edición Global y Silenciosa de Datos de Seguridad:**
+   - Las actualizaciones que realiza el atleta sobre sus datos de seguridad (teléfono de contacto, fecha de nacimiento y contacto de emergencia) se guardan globalmente en su perfil de usuario. Como es un proceso de perfil general, no emite notificaciones ni interrumpe el flujo normal de los clubes a los que está vinculado.

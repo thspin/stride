@@ -22,6 +22,8 @@ graph TD
         A11("Subir Archivo PDF/JPG (Apto Médico)"):::atleta
         A12["pagina_equipo.html (Pestaña Suscripción)"]:::atleta
         A13("Subir Comprobante de Pago (PDF/JPG)"):::atleta
+        A14("Clic en 'Darse de Baja' (Confirma en UI)"):::atleta
+        A15("Editar Datos de Seguridad (Global)"):::atleta
     end
 
     %% --- SUBGRAFO: BACKEND & DATABASE ---
@@ -39,9 +41,11 @@ graph TD
         S11["Actualizar Relación Atleta-Equipo <br> Estado Solicitud: 'Rechazada'"]:::backend
         S12["Almacenar Comprobante de Pago <br>(Cloud Storage) <br> Estado Pago: 'Pendiente'"]:::backend
         S13["Actualizar Estado de Pago <br> Estado Pago: 'Pagado' <br> Guardar Medio de Pago (Efectivo/Transfer/etc.)"]:::backend
-        S14["Actualizar Estado de Apto <br> Calcular vencimiento (hoy + N meses) <br> Estado Apto: 'Vigente'"]:::backend
-        S15["Actualizar Estado de Apto <br> Estado Apto: 'Rechazado'"]:::backend
-        S16["Actualizar Estado de Pago <br> Estado Pago: 'Vencido' <br> Notificar comprobante rechazado"]:::backend
+        S14["Actualizar Estado de Apto <br> Calcular vencimiento (hoy + N meses) <br> Estado Apto: 'Vigente' <br> (Vencimiento dinámico al vuelo)"]:::backend
+        S15["Actualizar Estado de Apto <br> Estado Apto: 'Rechazado' <br> Guardar Motivo de Rechazo"]:::backend
+        S16["Actualizar Estado de Pago <br> Estado Pago: 'Vencido' <br> (Vía Cron Job mensual o Rechazo)"]:::backend
+        S17["Registrar desvinculación <br> Estado Membresía: 'Inactivo'"]:::backend
+        S18["Actualizar Perfil de Seguridad <br> (Global - Sin Notificaciones)"]:::backend
     end
 
     %% --- SUBGRAFO: ADMINISTRADOR (FRONTEND) ---
@@ -58,6 +62,8 @@ graph TD
         AD9["Tabla: Aptos Médicos (admin_dashboard.html)"]:::admin
         AD10{"¿Aprobar o Rechazar Certificado?"}:::decision
         AD11("Configurar vigencia del Apto: Selector 1 a 12 meses"):::admin
+        AD15("Ingresar motivo de rechazo de Apto"):::admin
+        AD16("Clic en 'Expulsar / Dar de Baja' (Confirma en UI)"):::admin
     end
 
     %% --- FLUJO DE CONEXIÓN ---
@@ -70,7 +76,7 @@ graph TD
     S3 --> S4
     S2 -- Sí --> S4
     S4 --> A3
-
+    
     %% Flujo 2: Navegación & Selección de Equipo
     A3 --> |"Ir a Equipos"| A4
     A4 --> A5
@@ -90,6 +96,16 @@ graph TD
     S7 -- Pendiente --> A8
     S7 -- Aprobada --> A9
     
+    %% Flujo de Baja Autónoma del Atleta
+    A9 --> A14
+    A14 --> S17
+    S17 -.-> |"Membresía: Inactiva"| S7
+    
+    %% Edición global silenciosa de datos de seguridad
+    A10 --> A15
+    A15 --> S18
+    S18 --> A10
+
     %% Flujo 4: Acceso y Control del Administrador
     AD1 --> AD2
     AD2 --> S1
@@ -120,6 +136,10 @@ graph TD
     S13 -.-> |"Reflejo de Pago Exitoso (Pagado)"| A12
     S16 -.-> |"Reflejo de Pago Fallido (Vencido)"| A12
     
+    %% Expulsión por Administrador
+    AD6 --> AD16
+    AD16 --> S17
+    
     %% Flujo 6: Carga de Apto Médico por el Atleta
     A10 --> A11
     A11 --> S9
@@ -130,8 +150,9 @@ graph TD
     AD9 --> AD10
     AD10 -- Aprobar --> AD11
     AD11 --> S14
-    AD10 -- Rechazar --> S15
-    S14 -.-> |"Cambio de Estado en UI"| A10
-    S15 -.-> |"Notificación de Rechazo en UI"| A10
+    AD10 -- Rechazar --> AD15
+    AD15 --> S15
+    S14 -.-> |"Cambio a Vigente en UI"| A10
+    S15 -.-> |"Cambio a Rechazado (Muestra Motivo) en UI"| A10
 end
 ```

@@ -32,6 +32,8 @@ graph TD
         A11("Subir Archivo PDF/JPG (Apto Médico)"):::atleta
         A12["pagina_equipo.html (Pestaña Suscripción)"]:::atleta
         A13("Subir Comprobante de Pago (PDF/JPG)"):::atleta
+        A14("Clic en 'Darse de Baja' (Confirma en UI)"):::atleta
+        A15("Editar Datos de Seguridad (Global)"):::atleta
     end
 
     %% --- SUBGRAFO: BACKEND & DATABASE ---
@@ -49,9 +51,11 @@ graph TD
         S11["Actualizar Relación Atleta-Equipo <br> Estado Solicitud: 'Rechazada'"]:::backend
         S12["Almacenar Comprobante de Pago <br>(Cloud Storage) <br> Estado Pago: 'Pendiente'"]:::backend
         S13["Actualizar Estado de Pago <br> Estado Pago: 'Pagado' <br> Guardar Medio de Pago (Efectivo/Transfer/etc.)"]:::backend
-        S14["Actualizar Estado de Apto <br> Calcular vencimiento (hoy + N meses) <br> Estado Apto: 'Vigente'"]:::backend
-        S15["Actualizar Estado de Apto <br> Estado Apto: 'Rechazado'"]:::backend
-        S16["Actualizar Estado de Pago <br> Estado Pago: 'Vencido' <br> Notificar comprobante rechazado"]:::backend
+        S14["Actualizar Estado de Apto <br> Calcular vencimiento (hoy + N meses) <br> Estado Apto: 'Vigente' <br> (Vencimiento dinámico al vuelo)"]:::backend
+        S15["Actualizar Estado de Apto <br> Estado Apto: 'Rechazado' <br> Guardar Motivo de Rechazo"]:::backend
+        S16["Actualizar Estado de Pago <br> Estado Pago: 'Vencido' <br> (Vía Cron Job mensual o Rechazo)"]:::backend
+        S17["Registrar desvinculación <br> Estado Membresía: 'Inactivo'"]:::backend
+        S18["Actualizar Perfil de Seguridad <br> (Global - Sin Notificaciones)"]:::backend
     end
 
     %% --- SUBGRAFO: ADMINISTRADOR (FRONTEND) ---
@@ -68,6 +72,8 @@ graph TD
         AD9["Tabla: Aptos Médicos (admin_dashboard.html)"]:::admin
         AD10{"¿Aprobar o Rechazar Certificado?"}:::decision
         AD11("Configurar vigencia del Apto: Selector 1 a 12 meses"):::admin
+        AD15("Ingresar motivo de rechazo de Apto"):::admin
+        AD16("Clic en 'Expulsar / Dar de Baja' (Confirma en UI)"):::admin
     end
 
     %% --- FLUJO DE CONEXIÓN ---
@@ -80,7 +86,7 @@ graph TD
     S3 --> S4
     S2 -- Sí --> S4
     S4 --> A3
-
+    
     %% Flujo 2: Navegación & Selección de Equipo
     A3 --> |"Ir a Equipos"| A4
     A4 --> A5
@@ -100,6 +106,16 @@ graph TD
     S7 -- Pendiente --> A8
     S7 -- Aprobada --> A9
     
+    %% Flujo de Baja Autónoma del Atleta
+    A9 --> A14
+    A14 --> S17
+    S17 -.-> |"Membresía: Inactiva"| S7
+    
+    %% Edición global silenciosa de datos de seguridad
+    A10 --> A15
+    A15 --> S18
+    S18 --> A10
+
     %% Flujo 4: Acceso y Control del Administrador
     AD1 --> AD2
     AD2 --> S1
@@ -130,6 +146,10 @@ graph TD
     S13 -.-> |"Reflejo de Pago Exitoso (Pagado)"| A12
     S16 -.-> |"Reflejo de Pago Fallido (Vencido)"| A12
     
+    %% Expulsión por Administrador
+    AD6 --> AD16
+    AD16 --> S17
+    
     %% Flujo 6: Carga de Apto Médico por el Atleta
     A10 --> A11
     A11 --> S9
@@ -140,9 +160,11 @@ graph TD
     AD9 --> AD10
     AD10 -- Aprobar --> AD11
     AD11 --> S14
-    AD10 -- Rechazar --> S15
-    S14 -.-> |"Cambio de Estado en UI"| A10
-    S15 -.-> |"Notificación de Rechazo en UI"| A10
+    AD10 -- Rechazar --> AD15
+    AD15 --> S15
+    S14 -.-> |"Cambio a Vigente en UI"| A10
+    S15 -.-> |"Cambio a Rechazado (Muestra Motivo) en UI"| A10
+end
 ```
 
 ---
@@ -162,7 +184,8 @@ stateDiagram-v2
     Solicitud_Pendiente --> Miembro_Activo : Administrador aprueba (Admitir)
     Solicitud_Pendiente --> Solicitud_Rechazada : Administrador rechaza
     Solicitud_Rechazada --> Registrado : Reintento / Selección de otro club
-    Miembro_Activo --> [*] : Salir del Equipo / Baja
+    Miembro_Activo --> [*] : Baja Autónoma del Atleta (Confirmación UI)
+    Miembro_Activo --> [*] : Expulsión por Administrador (Confirmación UI)
 ```
 
 ### 2. Ciclo de Vida del Apto Médico (Certificado Relacional)
@@ -174,9 +197,9 @@ stateDiagram-v2
     [*] --> No_Entregado : Alta en el equipo
     No_Entregado --> En_Revision : Atleta sube PDF/JPG en dashboard_atleta.html
     En_Revision --> Vigente : Admin aprueba indicando meses de validez (Calcula: Hoy + N meses)
-    En_Revision --> Rechazado : Admin invalida PDF (ilegible/incorrecto)
-    Rechazado --> En_Revision : Atleta vuelve a subir archivo corregido
-    Vigente --> Vencido : Fecha actual > Fecha de vencimiento calculada
+    En_Revision --> Rechazado : Admin rechaza e ingresa motivo de rechazo
+    Rechazado --> En_Revision : Atleta visualiza motivo y sube archivo corregido
+    Vigente --> Vencido : Fecha actual > Fecha de vencimiento (Cálculo dinámico al vuelo)
     Vencido --> En_Revision : Atleta sube renovación
 ```
 
@@ -187,7 +210,7 @@ El ciclo de facturación es particular de cada relación Atleta-Club y gestiona 
 ```mermaid
 stateDiagram-v2
     [*] --> Pendiente : Admisión en Equipo (Pago Inicial Requerido)
-    Pagado --> Vencido : Fin del ciclo de facturación mensual sin cobro registrado
+    Pagado --> Vencido : Fin de ciclo mensual sin cobro (Vía Cron Job mensual o vencimiento)
     Vencido --> Pendiente : Atleta sube comprobante de pago en pagina_equipo.html
     Pendiente --> Pagado : Administrador aprueba comprobante (Confirma y elige medio de pago)
     Pendiente --> Vencido : Administrador rechaza comprobante (Confirma y notifica)
@@ -206,14 +229,18 @@ stateDiagram-v2
    * **Problema:** El Atleta intenta unirse a un club sin datos de seguridad mínimos.
    * **Resolución:** El backend realiza validaciones estrictas a nivel de API (validación de esquemas). Si los campos obligatorios están ausentes o vacíos, la API devuelve `400 Bad Request` y el frontend abre el modal [popup_datos_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/popup_datos_atleta.html).
 
-3. **Rechazo de Documento Médico:**
+3. **Rechazo de Documento Médico con Motivo:**
    * **Problema:** Un atleta sube un PDF vacío o una foto borrosa.
-   * **Resolución:** El administrador presiona "Rechazar" en el panel. El backend cambia el estado de la propiedad `medical_certificate_status` a `Rejected`. En la próxima recarga del Atleta, la pestaña *Mi perfil* de [dashboard_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/dashboard_atleta.html) muestra el error en color rojo con opción de volver a cargar.
+   * **Resolución:** El administrador presiona "Rechazar" en el panel. El sistema le solicita ingresar un breve motivo de rechazo (ej. "Falta sello de la clínica"). El backend cambia el estado a `Rechazado` y almacena el motivo. El atleta visualiza el motivo en color rojo en la pestaña *Mi perfil* de [dashboard_atleta.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/dashboard_atleta.html) y puede corregir la carga.
 
-4. **Persistencia en Estado Vencido de Cobro:**
+4. **Persistencia en Estado Vencido de Cobro (Actualización Automática):**
    * **Problema:** El atleta acumula facturas sin pagar o su comprobante es rechazado.
-   * **Resolución:** El sistema cambia automáticamente el estado de su cuota a `Vencido` en ese club. El atleta visualiza en su pestaña *Mi Suscripción* en [pagina_equipo.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/pagina_equipo.html) un banner con advertencia en color rojo y el cargador de comprobante habilitado.
+   * **Resolución:** Un Cron Job del sistema actualiza las cuotas no pagadas al estado `Vencido` al finalizar el ciclo. El atleta visualiza en su pestaña *Mi Suscripción* en [pagina_equipo.html](file:///c:/Users/pnm19/OneDrive/Documents/stride/Wireframes%20UI/pagina_equipo.html) un banner con advertencia en color rojo y el cargador de comprobante habilitado.
 
 5. **Rechazo de Comprobante de Pago por el Administrador:**
    * **Problema:** El atleta carga un archivo incorrecto o inválido como comprobante.
-   * **Resolución:** El administrador hace clic en "Rechazar Pago" (previa confirmación por pop-up). El backend cambia el estado del cobro a `Vencido` e invalida el comprobante actual. En la próxima sesión, el atleta verá en su pestaña *Mi Suscripción* el estado de deuda y una alerta indicando que su comprobante fue rechazado, solicitando una nueva carga.
+   * **Resolución:** El administrador hace clic en "Rechazar Pago" (previa confirmación por pop-up). El backend cambia el estado del cobro a `Vencido` e invalida el comprobante actual. El atleta verá en su pestaña *Mi Suscripción* el estado de deuda y una alerta indicando que su comprobante fue rechazado, solicitando una nueva carga.
+
+6. **Edición Global de Perfil de Seguridad (Silenciosa):**
+   * **Problema:** El atleta desea actualizar su teléfono o contacto de emergencia.
+   * **Resolución:** El atleta realiza la edición desde `dashboard_atleta.html`. Los datos se guardan en su perfil global en la DB. Como es un cambio de perfil estándar, el sistema no emite alertas o notificaciones a los administradores de los clubes a los que está unido.

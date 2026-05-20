@@ -41,10 +41,23 @@ graph TD
     T --> T2[dashboard_atleta.html <br> Pestaña: Mis tickets]:::pantalla
     T --> T3[dashboard_atleta.html <br> Pestaña: Mi perfil <br> (Datos Google, Seguridad, Apto)]:::pantalla
     T --> T4[pagina_equipo.html <br> Pestaña: Mi Suscripción]:::pantalla
+    T --> T5(Click en 'Darse de Baja' del Equipo):::accion
     
+    T5 --> T5_Conf{¿Confirmar en UI?}:::decision
+    T5_Conf -- Sí --> T5_API[API: Registrar Baja del Equipo]:::sistema
+    T5_API --> T5_Out[Volver a explorador_equipos.html <br> Estado: No Miembro]:::pantalla
+
     T3 --> U(Subir PDF/JPG de Apto Médico):::accion
     U --> V[API: Subir Archivo y <br> Actualizar Estado de Apto]:::sistema
     V --> W[Estado Apto: Pendiente de Revisión]:::pantalla
+    
+    W --> W_Reject{¿Rechazado por Admin?}:::decision
+    W_Reject -- Sí --> W_Msg[Visualizar Motivo de Rechazo en UI]:::pantalla
+    W_Msg --> U
+
+    T3 --> Z_Edit(Editar Teléfono o Contacto de Emergencia):::accion
+    Z_Edit --> Z_API[API: Guardar Datos de Seguridad <br> Globalmente - Sin Notificaciones]:::sistema
+    Z_API --> T3
 
     T4 --> X(Subir comprobante de pago):::accion
     X --> Y[API: Guardar Comprobante <br> y cambiar estado de cuota]:::sistema
