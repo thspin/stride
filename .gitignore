@@ -11,3 +11,14 @@ Thumbs.db
 *.sln
 *.swp
 *~
+
+# Agent systems & CLI local data
+.agents/
+.antigravitycli/
+skills-lock.json
+install.cmd
+
+.vercel
+
+# Non-web project files (docs, design, flows)
+Proyecto/

@@ -1,0 +1,236 @@
+@import "tailwindcss";
+
+/* MODERN SAAS LIGHT-MODE DESIGN SYSTEM */
+:root {
+  --background: #f8fafc; /* Slate 50 */
+  --foreground: #0f172a; /* Slate 900 */
+  --primary: #2563eb; /* Blue 600 */
+  --primary-hover: #1d4ed8; /* Blue 700 */
+  --border: #e2e8f0; /* Slate 200 */
+  --radius: 8px;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-shadow: none;
+  text-shadow: none;
+  border-radius: 8px;
+}
+
+body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Re-theme brand background bg-[#1A3834] to clean light mode */
+.bg-\[\#1A3834\] {
+  background-color: #f8fafc !important;
+  background: #f8fafc !important;
+}
+
+/* Re-theme dark green split login right section */
+div.bg-\[\#1A3834\],
+section.bg-\[\#1A3834\] {
+  background-color: #ffffff !important;
+}
+
+/* Re-theme sticky Header / Navbar */
+header.bg-\[\#1A3834\]\/90 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(8px) !important;
+  border-b: 1px solid #e2e8f0 !important;
+}
+
+/* Cream containers bg-[#FBFAF4] -> clean white cards with shadow */
+.bg-\[\#FBFAF4\],
+.bg-white {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Warm light lists bg-[#F5F3EB] -> slate-100 */
+.bg-\[\#F5F3EB\],
+.bg-gray-100,
+thead,
+th {
+  background-color: #f1f5f9 !important;
+  background: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+/* Primary Accent orange bg-[#FF5A1F] -> clean SaaS Blue */
+.bg-\[\#FF5A1F\] {
+  background-color: #2563eb !important;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid #1d4ed8 !important;
+}
+
+/* Text elements */
+.text-white,
+.text-\[\#FBFAF4\],
+.text-\[\#FBFAF4\]\/80,
+.text-\[\#FBFAF4\]\/70,
+.text-\[\#FBFAF4\]\/60 {
+  color: #475569 !important; /* slate-600 */
+}
+
+.text-\[\#1A3834\],
+.text-\[\#1A3834\]\/70,
+.text-\[\#1A3834\]\/60,
+h1, h2, h3, h4, h5, h6, p, span, strong, a, td, th, label {
+  color: #0f172a !important; /* slate-900 */
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Headings on the dark gradient login right section */
+.bg-gradient-to-br.from-\[\#1A3834\] h2 {
+  color: #ffffff !important;
+}
+.bg-gradient-to-br.from-\[\#1A3834\] p {
+  color: #cbd5e1 !important;
+}
+
+/* Clean up solid black/blue text overrides inside primary buttons */
+.bg-\[\#FF5A1F\] * {
+  color: #ffffff !important;
+}
+
+/* Alerts / Badges */
+.bg-emerald-500\/10 {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+}
+.bg-emerald-500\/10 * {
+  color: #047857 !important;
+}
+
+.bg-rose-500\/5,
+.bg-rose-500\/10 {
+  background-color: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+}
+.bg-rose-500\/10 * {
+  color: #b91c1c !important;
+}
+
+.bg-blue-500\/10 {
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe !important;
+}
+.bg-blue-500\/10 * {
+  color: #1d4ed8 !important;
+}
+
+.bg-amber-500\/10 {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+}
+.bg-amber-500\/10 * {
+  color: #b45309 !important;
+}
+
+/* Alert text tags */
+.text-rose-700, 
+.text-rose-600, 
+.text-emerald-700, 
+.text-blue-700, 
+.text-amber-700 {
+  color: inherit !important;
+  font-weight: 600 !important;
+}
+
+/* Borders */
+*,
+.border,
+.border-b,
+.border-t,
+.border-l,
+.border-r,
+.border-\[\#FBFAF4\]\/10,
+.border-\[\#FBFAF4\]\/20,
+.border-\[\#1A3834\]\/10,
+.border-\[\#1A3834\]\/20 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Form fields inputs */
+input, select, textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  font-family: 'Inter', sans-serif !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #2563eb !important;
+  outline: 2px solid rgba(37, 99, 235, 0.15) !important;
+}
+
+/* Buttons and inline flex containers */
+button,
+a.inline-flex,
+a.flex {
+  border-radius: 20px !important; /* pill/rounded buttons */
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500 !important;
+  transition: all 0.15s ease-in-out !important;
+  cursor: pointer !important;
+}
+
+/* Primary hover buttons */
+.bg-\[\#FF5A1F\]:hover,
+button.bg-\[\#FF5A1F\]:hover {
+  background-color: #1d4ed8 !important;
+  background: #1d4ed8 !important;
+}
+
+/* Secondary buttons: outline border */
+button.text-\[\#1A3834\] {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+button.text-\[\#1A3834\]:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Google Sign-in popup card special background override */
+.fixed.inset-0.z-50 .bg-\[\#FBFAF4\] {
+  background-color: #ffffff !important;
+}
+
+/* Gradient background on split login screen right side */
+.bg-gradient-to-br.from-\[\#1A3834\] {
+  background-image: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+}
+
+/* Remove decorative details */
+.gradient-border-shell {
+  background: transparent !important;
+  padding: 0px !important;
+  border: none !important;
+}
+
+svg {
+  stroke: currentColor !important;
+}
+
+/* Hide background design artifacts */
+.absolute.inset-0.bg-\[radial-gradient\],
+.absolute.top-0.right-0.w-48,
+.absolute.top-0.right-0.w-32 {
+  display: none !important;
+}
