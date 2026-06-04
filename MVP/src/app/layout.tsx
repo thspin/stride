@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import SessionProvider from "@/components/SessionProvider";
 
 export const metadata: Metadata = {
   title: "RV — Ecosistema de Gestión y Control de Riesgos Deportivos",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="es" className="h-full scroll-smooth">
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground selection:bg-accent/30 selection:text-accent-foreground dark">
-        {children}
+        <SessionProvider>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

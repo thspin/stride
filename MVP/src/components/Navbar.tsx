@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { getCurrentUser, setCurrentUserEmail, Athlete } from '@/lib/db';
-import { LogOut, Shield, Compass, Grid, Sparkles } from 'lucide-react';
+import { LogOut, Shield, Compass, Grid, Sparkles, User } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Navbar() {
@@ -91,6 +91,18 @@ export default function Navbar() {
                   >
                     <Compass className="w-4 h-4" />
                     Explorar Equipos
+                  </Link>
+
+                  <Link
+                    href="/perfil"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-semibold font-display uppercase tracking-[1.68px] transition-all duration-150 ${
+                      pathname === '/perfil'
+                        ? 'bg-[#FBFAF4]/10 text-white border border-[#FBFAF4]/20'
+                        : 'text-[#FBFAF4]/80 hover:text-white hover:bg-[#FBFAF4]/5'
+                    }`}
+                  >
+                    <User className="w-4 h-4" />
+                    Mi Perfil
                   </Link>
                 </>
               )}

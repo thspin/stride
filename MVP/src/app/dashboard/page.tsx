@@ -16,7 +16,8 @@ import {
   CheckCircle,
   XCircle,
   ExternalLink,
-  Info
+  Info,
+  MapPin
 } from 'lucide-react';
 
 export default function AthleteDashboard() {
@@ -159,16 +160,32 @@ export default function AthleteDashboard() {
                 <div className="bg-[#FBFAF4] text-[#1A3834] rounded-[16px] p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-48 h-48 bg-[radial-gradient(circle_at_100%_0%,rgba(255,90,31,0.05),transparent_70%)]"></div>
                   
-                  <div className="space-y-3">
-                    <span className="text-[10px] font-extrabold text-[#1A3834] bg-[#1A3834]/10 border border-[#1A3834]/20 px-2.5 py-1 rounded-full uppercase tracking-wider font-display">
-                      Miembro Activo
-                    </span>
-                    <h1 className="text-4xl font-extrabold text-[#1A3834] font-display uppercase tracking-wide">
-                      {team.name}
-                    </h1>
-                    <p className="text-body-md text-[#1A3834]/70">
-                      Entrenador: <strong className="text-[#1A3834]">{team.coach}</strong> • Días: {team.trainingDays}
-                    </p>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 z-10">
+                    {team.logoUrl && (
+                      <div className="w-20 h-20 rounded-[20px] bg-[#1A3834] overflow-hidden flex items-center justify-center p-1 border-2 border-[#1A3834]/25 shadow-md flex-shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={team.logoUrl} alt={team.name} className="w-full h-full object-contain" />
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-extrabold text-[#1A3834] bg-[#1A3834]/10 border border-[#1A3834]/20 px-2.5 py-1 rounded-full uppercase tracking-wider font-display">
+                          Miembro Activo
+                        </span>
+                        {team.location && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#FF5A1F] bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 px-2.5 py-1 rounded-full uppercase tracking-wider font-display">
+                            <MapPin className="w-3 h-3" />
+                            {team.location}
+                          </span>
+                        )}
+                      </div>
+                      <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1A3834] font-display uppercase tracking-wide">
+                        {team.name}
+                      </h1>
+                      <p className="text-sm text-[#1A3834]/70">
+                        Entrenador: <strong className="text-[#1A3834]">{team.coach}</strong> • Días: {team.trainingDays}
+                      </p>
+                    </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 z-10">

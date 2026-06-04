@@ -8,6 +8,8 @@ export interface Team {
   trainingDays: string;
   coach: string;
   instructions: string;
+  location: string;
+  logoUrl: string;
 }
 
 export interface Athlete {
@@ -34,6 +36,16 @@ export interface Athlete {
   paymentMotivoRechazo?: string;
 }
 
+export interface Payment {
+  id: string;
+  athleteEmail: string;
+  athleteName: string;
+  amount: number;
+  method: string;
+  date: string; // ISO String
+  status: 'aprobado' | 'rechazado';
+}
+
 const DEFAULT_TEAM: Team = {
   id: 'rv-equipo',
   name: 'RV equipo de montaña',
@@ -42,6 +54,8 @@ const DEFAULT_TEAM: Team = {
   trainingDays: 'Martes y Jueves 19:00 hs, Sábados 8:00 hs',
   coach: 'Ramiro Valenzuela',
   instructions: 'Para el entrenamiento de este martes, traer linterna frontal y mochila de hidratación. Haremos cuestas acumuladas de 400m en el circuito de cerro.',
+  location: 'Mendoza, Argentina',
+  logoUrl: '/rv-logo.svg',
 };
 
 const SEED_ATHLETES: Athlete[] = [
@@ -160,6 +174,39 @@ const SEED_ATHLETES: Athlete[] = [
   }
 ];
 
+// Datos de seed para el historial de pagos (últimos 6 meses)
+function generateSeedPayments(): Payment[] {
+  const payments: Payment[] = [];
+  const athletes = [
+    { email: 'atleta_activo@rv.com', name: 'Carlos Corredor' },
+    { email: 'pendiente_pago@rv.com', name: 'Paula Mora' },
+    { email: 'revision_pago@rv.com', name: 'Mariano Recibo' },
+    { email: 'revision_apto@rv.com', name: 'Sofía Salud' },
+  ];
+  const methods = ['Transferencia', 'Efectivo', 'Tarjeta'];
+  const amount = 15000; // ARS por mes
+
+  const now = new Date();
+  for (let monthOffset = 5; monthOffset >= 0; monthOffset--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - monthOffset, 15);
+    // Cada atleta puede o no haber pagado ese mes
+    const athleteCount = monthOffset === 0 ? 2 : Math.min(athletes.length, 2 + monthOffset % 3);
+    for (let i = 0; i < athleteCount; i++) {
+      const athlete = athletes[i % athletes.length];
+      payments.push({
+        id: `pay-${monthOffset}-${i}`,
+        athleteEmail: athlete.email,
+        athleteName: athlete.name,
+        amount: amount + (monthOffset * 500), // Simular aumento gradual
+        method: methods[i % methods.length],
+        date: date.toISOString(),
+        status: 'aprobado',
+      });
+    }
+  }
+  return payments;
+}
+
 // Helper seguro para localStorage (evita errores SSR)
 function isClient() {
   return typeof window !== 'undefined';
@@ -173,6 +220,9 @@ export function initializeDB() {
   }
   if (!localStorage.getItem('rv_athletes')) {
     localStorage.setItem('rv_athletes', JSON.stringify(SEED_ATHLETES));
+  }
+  if (!localStorage.getItem('rv_payments')) {
+    localStorage.setItem('rv_payments', JSON.stringify(generateSeedPayments()));
   }
 }
 
@@ -198,6 +248,72 @@ export function getAthletes(): Athlete[] {
 export function saveAthletes(athletes: Athlete[]) {
   if (!isClient()) return;
   localStorage.setItem('rv_athletes', JSON.stringify(athletes));
+}
+
+// Pagos históricos
+export function getPayments(): Payment[] {
+  if (!isClient()) return [];
+  initializeDB();
+  const data = localStorage.getItem('rv_payments');
+  return data ? JSON.parse(data) : [];
+}
+
+export function savePayments(payments: Payment[]) {
+  if (!isClient()) return;
+  localStorage.setItem('rv_payments', JSON.stringify(payments));
+}
+
+export function addPayment(payment: Payment) {
+  const payments = getPayments();
+  payments.push(payment);
+  savePayments(payments);
+}
+
+// Datos agregados para el Dashboard analítico
+export function getAnalyticsData() {
+  const payments = getPayments();
+  const athletes = getAthletes();
+  const teamAthletes = athletes.filter(a => a.teamId === 'rv-equipo' && a.teamStatus === 'activo');
+
+  // Agrupar pagos por mes
+  const monthlyData: { [key: string]: { revenue: number; paymentCount: number; month: string; monthLabel: string } } = {};
+
+  payments.forEach(p => {
+    if (p.status !== 'aprobado') return;
+    const d = new Date(p.date);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    if (!monthlyData[key]) {
+      monthlyData[key] = {
+        revenue: 0,
+        paymentCount: 0,
+        month: key,
+        monthLabel: `${monthNames[d.getMonth()]} ${d.getFullYear()}`,
+      };
+    }
+    monthlyData[key].revenue += p.amount;
+    monthlyData[key].paymentCount += 1;
+  });
+
+  // Ordenar cronológicamente
+  const sortedMonths = Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
+
+  // KPIs
+  const totalRevenue = payments.filter(p => p.status === 'aprobado').reduce((sum, p) => sum + p.amount, 0);
+  const totalActiveAthletes = teamAthletes.length;
+  const paidAthletes = teamAthletes.filter(a => a.paymentStatus === 'Pagado').length;
+  const unpaidAthletes = teamAthletes.filter(a => a.paymentStatus !== 'Pagado').length;
+  const morosityRate = totalActiveAthletes > 0 ? Math.round((unpaidAthletes / totalActiveAthletes) * 100) : 0;
+
+  return {
+    monthlyData: sortedMonths,
+    totalRevenue,
+    totalActiveAthletes,
+    paidAthletes,
+    unpaidAthletes,
+    morosityRate,
+    averagePerAthlete: totalActiveAthletes > 0 ? Math.round(totalRevenue / totalActiveAthletes) : 0,
+  };
 }
 
 // Sesión Activa del Usuario
@@ -297,11 +413,24 @@ export function processRequest(email: string, approve: boolean) {
 
 export function processPayment(email: string, approve: boolean, method?: string, reason?: string) {
   if (approve) {
+    const athlete = getAthletes().find(a => a.email === email);
     updateAthleteProfile(email, {
       paymentStatus: 'Pagado',
       paymentMethod: method || 'Transferencia',
       paymentMotivoRechazo: undefined,
     });
+    // Registrar en historial de pagos
+    if (athlete) {
+      addPayment({
+        id: `pay-${Date.now()}`,
+        athleteEmail: email,
+        athleteName: athlete.name,
+        amount: 15000,
+        method: method || 'Transferencia',
+        date: new Date().toISOString(),
+        status: 'aprobado',
+      });
+    }
   } else {
     updateAthleteProfile(email, {
       paymentStatus: 'Vencido',
